@@ -1,14 +1,20 @@
 # 🎬 MovieMates
 
-MovieMates is a real-time synchronized movie watching platform that
-allows users to watch locally stored videos together from different
-locations using socket-based synchronization.
+MovieMates is a real-time synchronized movie watching platform
+that allows friends to watch videos together from different locations.
 
-## Tech Stack
+## 🚀 Features (Planned)
+- Google authentication
+- Create & join rooms
+- Host-controlled video playback
+- Real-time synchronization using sockets
+- Live chat system
+- Backup host handling
+
+## 🛠️ Tech Stack
 - Frontend: React, HTML5 Video API
 - Backend: Node.js, Express, Socket.io
-- Auth: Google OAuth
 - Database: MongoDB
 
-## Status
-🚧 Under development
+## 📅 Project Status
+Currently under development.
