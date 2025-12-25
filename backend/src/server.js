@@ -21,7 +21,9 @@ io.on("connection", (socket) => {
     console.log("User disconnected:", socket.id);
   });
 });
-
+app.get("/", (req, res) => {
+  res.send("Backend is running 🚀");
+});
 const PORT = 5000;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
