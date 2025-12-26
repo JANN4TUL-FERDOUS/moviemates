@@ -20,6 +20,11 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("User disconnected:", socket.id);
   });
+  socket.on("user:login", (user) => {
+    console.log("User logged in:", user.name);
+    socket.user = user;
+  });
+
 });
 app.get("/", (req, res) => {
   res.send("Backend is running 🚀");
