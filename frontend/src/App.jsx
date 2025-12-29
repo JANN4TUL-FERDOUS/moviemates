@@ -6,21 +6,30 @@ import { jwtDecode } from "jwt-decode";
 function App() {
   const [user, setUser] = useState(null);
   const [roomId, setRoomId] = useState("");
+  const [currentRoom, setCurrentRoom] = useState(null);
+  const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    socket.connect();
+    if (!socket.connected) {
+      socket.connect();
+    }
+
 
     socket.on("connect", () => {
       console.log("Socket connected:", socket.id);
     });
 
-    // Socket listeners
     socket.on("room:created", ({ roomId }) => {
-      alert(`Room created: ${roomId}`);
+      setCurrentRoom(roomId);
     });
 
     socket.on("room:joined", ({ roomId }) => {
-      alert(`Joined room: ${roomId}`);
+      setCurrentRoom(roomId);
+      shousetRoomId("");
+    });
+
+    socket.on("room:users", (usersList) => {
+      setUsers(usersList);
     });
 
     socket.on("room:error", (msg) => {
@@ -31,9 +40,11 @@ function App() {
       socket.disconnect();
       socket.off("room:created");
       socket.off("room:joined");
+      socket.off("room:users");
       socket.off("room:error");
     };
   }, []);
+
 
   const handleLoginSuccess = (credentialResponse) => {
     const decoded = jwtDecode(credentialResponse.credential);
@@ -66,7 +77,10 @@ function App() {
 
           {/*  Room UI */}
           <div style={{ marginTop: "1rem" }}>
-            <button onClick={() => socket.emit("room:create")}>
+            <button
+              onClick={() => socket.emit("room:create")}
+              disabled={currentRoom}
+            >
               Create Room
             </button>
 
@@ -80,10 +94,25 @@ function App() {
 
             <button
               onClick={() => socket.emit("room:join", roomId)}
+              disabled={currentRoom || !roomId}
               style={{ marginLeft: "0.5rem" }}
             >
               Join Room
             </button>
+            {currentRoom && (
+              <div style={{ marginTop: "1.5rem" }}>
+                <h3>Room ID: {currentRoom}</h3>
+
+                <h4>Users in Room:</h4>
+                <ul>
+                  {users.map((u) => (
+                    <li key={u.id}>
+                      <img src={u.avatar} alt="" width={30} /> {u.name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </>
       )}
