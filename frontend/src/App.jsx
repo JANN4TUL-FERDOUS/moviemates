@@ -3,9 +3,9 @@ import { socket } from "./socket";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 
-
 function App() {
   const [user, setUser] = useState(null);
+  const [roomId, setRoomId] = useState("");
 
   useEffect(() => {
     socket.connect();
@@ -14,7 +14,25 @@ function App() {
       console.log("Socket connected:", socket.id);
     });
 
-    return () => socket.disconnect();
+    // Socket listeners
+    socket.on("room:created", ({ roomId }) => {
+      alert(`Room created: ${roomId}`);
+    });
+
+    socket.on("room:joined", ({ roomId }) => {
+      alert(`Joined room: ${roomId}`);
+    });
+
+    socket.on("room:error", (msg) => {
+      alert(msg);
+    });
+
+    return () => {
+      socket.disconnect();
+      socket.off("room:created");
+      socket.off("room:joined");
+      socket.off("room:error");
+    };
   }, []);
 
   const handleLoginSuccess = (credentialResponse) => {
@@ -28,8 +46,6 @@ function App() {
     };
 
     setUser(userData);
-    console.log("Logged in user:", userData);
-
     socket.emit("user:login", userData);
   };
 
@@ -40,11 +56,36 @@ function App() {
       {!user ? (
         <GoogleLogin onSuccess={handleLoginSuccess} />
       ) : (
-        <div>
-          <img src={user.avatar} alt="avatar" width={60} />
-          <h3>{user.name}</h3>
-          <p>{user.email}</p>
-        </div>
+        <>
+          {/* User info */}
+          <div>
+            <img src={user.avatar} alt="avatar" width={60} />
+            <h3>{user.name}</h3>
+            <p>{user.email}</p>
+          </div>
+
+          {/*  Room UI */}
+          <div style={{ marginTop: "1rem" }}>
+            <button onClick={() => socket.emit("room:create")}>
+              Create Room
+            </button>
+
+            <input
+              type="text"
+              placeholder="Enter Room ID"
+              value={roomId}
+              onChange={(e) => setRoomId(e.target.value)}
+              style={{ marginLeft: "0.5rem" }}
+            />
+
+            <button
+              onClick={() => socket.emit("room:join", roomId)}
+              style={{ marginLeft: "0.5rem" }}
+            >
+              Join Room
+            </button>
+          </div>
+        </>
       )}
     </div>
   );
