@@ -8,6 +8,8 @@ function App() {
   const [roomId, setRoomId] = useState("");
   const [currentRoom, setCurrentRoom] = useState(null);
   const [users, setUsers] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [chatInput, setChatInput] = useState("");
 
   useEffect(() => {
     if (!socket.connected) {
@@ -35,6 +37,10 @@ function App() {
     socket.on("room:error", (msg) => {
       alert(msg);
     });
+    socket.on("chat:message", (message) => {
+      setMessages((prev) => [...prev, message]);
+    });
+
 
     return () => {
       socket.disconnect();
@@ -42,6 +48,7 @@ function App() {
       socket.off("room:joined");
       socket.off("room:users");
       socket.off("room:error");
+      socket.off("chat:message"); 
     };
   }, []);
 
@@ -59,6 +66,18 @@ function App() {
     setUser(userData);
     socket.emit("user:login", userData);
   };
+
+  const sendMessage = () => {
+    if (!chatInput.trim()) return;
+
+    socket.emit("chat:send", {
+      roomId: currentRoom,
+      text: chatInput,
+    });
+
+    setChatInput("");
+  };
+
 
   return (
     <div style={{ padding: "2rem" }}>
@@ -111,6 +130,41 @@ function App() {
                     </li>
                   ))}
                 </ul>
+                {/* ================= CHAT ================= */}
+                <div style={{ marginTop: "1rem" }}>
+                  <h4>Chat</h4>
+
+                  <div
+                    style={{
+                      border: "1px solid #ccc",
+                      height: "200px",
+                      overflowY: "auto",
+                      padding: "0.5rem",
+                      marginBottom: "0.5rem",
+                    }}
+                  >
+                    {messages.map((msg, i) => (
+                      <div key={i} style={{ marginBottom: "0.3rem" }}>
+                        <img src={msg.user.avatar} alt="" width={20} />{" "}
+                        <strong>{msg.user.name}:</strong> {msg.text}
+                      </div>
+                    ))}
+                  </div>
+
+                  <input
+                    type="text"
+                    value={chatInput}
+                    onChange={(e) => setChatInput(e.target.value)}
+                    placeholder="Type a message..."
+                    onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                    style={{ width: "75%" }}
+                  />
+
+                  <button onClick={sendMessage} style={{ marginLeft: "0.5rem" }}>
+                    Send
+                  </button>
+                </div>
+
               </div>
             )}
           </div>

@@ -101,6 +101,22 @@ io.on("connection", (socket) => {
     console.log(`User joined room: ${roomId}`);
   });
 
+  socket.on("chat:send", ({ roomId, text }) => {
+    if (!socket.user || !roomId) return;
+
+    const message = {
+      user: {
+        id: socket.user.id,
+        name: socket.user.name,
+        avatar: socket.user.avatar,
+      },
+      text,
+      timestamp: new Date().toISOString(),
+    };
+
+    io.to(roomId).emit("chat:message", message);
+  });
+
 
 
 
