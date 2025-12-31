@@ -1,177 +1,187 @@
-import { useEffect, useState } from "react";
-import { socket } from "./socket";
+import { useEffect, useRef, useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
+import { socket } from "./socket";
+import "./App.css";
 
-function App() {
+export default function App() {
+  const videoRef = useRef(null);
+
   const [user, setUser] = useState(null);
   const [roomId, setRoomId] = useState("");
   const [currentRoom, setCurrentRoom] = useState(null);
   const [users, setUsers] = useState([]);
   const [messages, setMessages] = useState([]);
   const [chatInput, setChatInput] = useState("");
+  const [videoSrc, setVideoSrc] = useState(null);
+  const [isHost, setIsHost] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [showChat, setShowChat] = useState(false);
+  const [showUsers, setShowUsers] = useState(false);
+
+  /* ---------------- SOCKET ---------------- */
 
   useEffect(() => {
-    if (!socket.connected) {
-      socket.connect();
-    }
+    socket.connect();
 
-
-    socket.on("connect", () => {
-      console.log("Socket connected:", socket.id);
-    });
-
-    socket.on("room:created", ({ roomId }) => {
+    socket.on("room:created", ({ roomId, isHost }) => {
       setCurrentRoom(roomId);
+      setIsHost(isHost);
     });
 
     socket.on("room:joined", ({ roomId }) => {
       setCurrentRoom(roomId);
-      shousetRoomId("");
+      setIsHost(false);
+      socket.emit("video:request-state", roomId);
     });
 
-    socket.on("room:users", (usersList) => {
-      setUsers(usersList);
+    socket.on("room:users", setUsers);
+
+    socket.on("video:play", ({ time }) => {
+      videoRef.current.currentTime = time;
+      videoRef.current.play();
+      setIsPlaying(true);
     });
 
-    socket.on("room:error", (msg) => {
-      alert(msg);
-    });
-    socket.on("chat:message", (message) => {
-      setMessages((prev) => [...prev, message]);
+    socket.on("video:pause", ({ time }) => {
+      videoRef.current.currentTime = time;
+      videoRef.current.pause();
+      setIsPlaying(false);
     });
 
+    socket.on("video:seek", ({ time }) => {
+      videoRef.current.currentTime = time;
+    });
 
-    return () => {
-      socket.disconnect();
-      socket.off("room:created");
-      socket.off("room:joined");
-      socket.off("room:users");
-      socket.off("room:error");
-      socket.off("chat:message"); 
-    };
+    socket.on("video:state", ({ time, isPlaying }) => {
+      videoRef.current.currentTime = time;
+      isPlaying ? videoRef.current.play() : videoRef.current.pause();
+      setIsPlaying(isPlaying);
+    });
+
+    socket.on("chat:message", (msg) =>
+      setMessages((m) => [...m, msg])
+    );
+
+    return () => socket.disconnect();
   }, []);
 
+  /* ---------------- AUTH ---------------- */
 
-  const handleLoginSuccess = (credentialResponse) => {
-    const decoded = jwtDecode(credentialResponse.credential);
-
-    const userData = {
-      id: decoded.sub,
-      name: decoded.name,
-      email: decoded.email,
-      avatar: decoded.picture,
+  const login = (res) => {
+    const d = jwtDecode(res.credential);
+    const u = {
+      id: d.sub,
+      name: d.name,
+      avatar: d.picture,
     };
-
-    setUser(userData);
-    socket.emit("user:login", userData);
+    setUser(u);
+    socket.emit("user:login", u);
   };
 
-  const sendMessage = () => {
-    if (!chatInput.trim()) return;
+  /* ---------------- VIDEO ---------------- */
 
-    socket.emit("chat:send", {
-      roomId: currentRoom,
-      text: chatInput,
-    });
-
-    setChatInput("");
+  const loadVideo = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setVideoSrc(URL.createObjectURL(file));
   };
 
+  const togglePlay = () => {
+    if (!isHost) return;
+    const time = videoRef.current.currentTime;
+
+    if (videoRef.current.paused) {
+      socket.emit("video:play", { roomId: currentRoom, time });
+    } else {
+      socket.emit("video:pause", { roomId: currentRoom, time });
+    }
+  };
+
+  const seekForward = () => {
+    if (!isHost) return;
+    const time = videoRef.current.currentTime + 10;
+    socket.emit("video:seek", { roomId: currentRoom, time });
+  };
+
+  /* ---------------- UI ---------------- */
 
   return (
-    <div style={{ padding: "2rem" }}>
-      <h1>🎬 MovieMates</h1>
+    <div className="app">
+      <header className="header">
+        <h2>🎬 MovieMates</h2>
 
-      {!user ? (
-        <GoogleLogin onSuccess={handleLoginSuccess} />
-      ) : (
-        <>
-          {/* User info */}
-          <div>
-            <img src={user.avatar} alt="avatar" width={60} />
-            <h3>{user.name}</h3>
-            <p>{user.email}</p>
+        {!user ? (
+          <GoogleLogin onSuccess={login} />
+        ) : (
+          <div className="user">
+            <img src={user.avatar} />
+            <span>{user.name}</span>
+            <button onClick={() => setUser(null)}>Logout</button>
           </div>
+        )}
+      </header>
 
-          {/*  Room UI */}
-          <div style={{ marginTop: "1rem" }}>
-            <button
-              onClick={() => socket.emit("room:create")}
-              disabled={currentRoom}
-            >
-              Create Room
-            </button>
+      {!user && (
+        <div className="landing">
+          <h1>Watch movies together. In sync.</h1>
+          <p>Create a room, load the same movie, enjoy.</p>
+        </div>
+      )}
 
-            <input
-              type="text"
-              placeholder="Enter Room ID"
-              value={roomId}
-              onChange={(e) => setRoomId(e.target.value)}
-              style={{ marginLeft: "0.5rem" }}
-            />
+      {user && !currentRoom && (
+        <div className="room-box">
+          <button onClick={() => socket.emit("room:create")}>
+            Create Room
+          </button>
 
-            <button
-              onClick={() => socket.emit("room:join", roomId)}
-              disabled={currentRoom || !roomId}
-              style={{ marginLeft: "0.5rem" }}
-            >
-              Join Room
-            </button>
-            {currentRoom && (
-              <div style={{ marginTop: "1.5rem" }}>
-                <h3>Room ID: {currentRoom}</h3>
+          <input
+            placeholder="Room ID"
+            value={roomId}
+            onChange={(e) => setRoomId(e.target.value)}
+          />
 
-                <h4>Users in Room:</h4>
-                <ul>
-                  {users.map((u) => (
-                    <li key={u.id}>
-                      <img src={u.avatar} alt="" width={30} /> {u.name}
-                    </li>
-                  ))}
-                </ul>
-                {/* ================= CHAT ================= */}
-                <div style={{ marginTop: "1rem" }}>
-                  <h4>Chat</h4>
+          <button onClick={() => socket.emit("room:join", roomId)}>
+            Join Room
+          </button>
+        </div>
+      )}
 
-                  <div
-                    style={{
-                      border: "1px solid #ccc",
-                      height: "200px",
-                      overflowY: "auto",
-                      padding: "0.5rem",
-                      marginBottom: "0.5rem",
-                    }}
-                  >
-                    {messages.map((msg, i) => (
-                      <div key={i} style={{ marginBottom: "0.3rem" }}>
-                        <img src={msg.user.avatar} alt="" width={20} />{" "}
-                        <strong>{msg.user.name}:</strong> {msg.text}
-                      </div>
-                    ))}
-                  </div>
+      {currentRoom && (
+        <div className="video-wrapper">
+          <input type="file" accept="video/*" onChange={loadVideo} />
 
-                  <input
-                    type="text"
-                    value={chatInput}
-                    onChange={(e) => setChatInput(e.target.value)}
-                    placeholder="Type a message..."
-                    onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                    style={{ width: "75%" }}
-                  />
+          {videoSrc && (
+            <>
+              <video ref={videoRef} src={videoSrc} />
 
-                  <button onClick={sendMessage} style={{ marginLeft: "0.5rem" }}>
-                    Send
-                  </button>
-                </div>
-
+              <div className="controls">
+                <button onClick={togglePlay}>
+                  {isPlaying ? "⏸" : "▶"}
+                </button>
+                <button onClick={seekForward}>⏩</button>
+                <button onClick={() => setShowChat(!showChat)}>💬</button>
+                <button onClick={() => setShowUsers(!showUsers)}>
+                  👥 {users.length}
+                </button>
+                <button onClick={() => videoRef.current.requestFullscreen()}>
+                  ⛶
+                </button>
+                <button
+                  className="leave"
+                  onClick={() => {
+                    setCurrentRoom(null);
+                    setMessages([]);
+                    setVideoSrc(null);
+                  }}
+                >
+                  Leave
+                </button>
               </div>
-            )}
-          </div>
-        </>
+            </>
+          )}
+        </div>
       )}
     </div>
   );
 }
-
-export default App;

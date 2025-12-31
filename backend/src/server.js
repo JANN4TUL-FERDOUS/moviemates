@@ -57,6 +57,11 @@ io.on("connection", (socket) => {
     rooms[roomId] = {
       hostId: socket.id,
       users: [{ ...socket.user, socketId: socket.id }],
+      video: {
+        time: 0,
+        isPlaying: false,
+        updatedAt: Date.now(),
+      },
     };
 
     socket.join(roomId);
@@ -69,6 +74,7 @@ io.on("connection", (socket) => {
     io.to(roomId).emit("room:users", rooms[roomId].users);
 
     console.log(`Room created: ${roomId}`);
+
   });
 
   socket.on("room:join", (roomId) => {
@@ -115,6 +121,60 @@ io.on("connection", (socket) => {
     };
 
     io.to(roomId).emit("chat:message", message);
+  });
+
+  // ---------------- VIDEO EVENTS ----------------
+
+  const validTime = (t) =>
+    typeof t === "number" && isFinite(t) && t >= 0;
+
+  socket.on("video:play", ({ roomId, time }) => {
+    const room = rooms[roomId];
+    if (!room || room.hostId !== socket.id || !validTime(time)) return;
+
+    room.video = {
+      time,
+      isPlaying: true,
+      updatedAt: Date.now(),
+    };
+
+    io.to(roomId).emit("video:play", room.video);
+  });
+
+  socket.on("video:pause", ({ roomId, time }) => {
+    const room = rooms[roomId];
+    if (!room || room.hostId !== socket.id || !validTime(time)) return;
+
+    room.video = {
+      time,
+      isPlaying: false,
+      updatedAt: Date.now(),
+    };
+
+    io.to(roomId).emit("video:pause", room.video);
+  });
+
+  socket.on("video:seek", ({ roomId, time }) => {
+    const room = rooms[roomId];
+    if (!room || room.hostId !== socket.id || !validTime(time)) return;
+
+    room.video.time = time;
+    room.video.updatedAt = Date.now();
+
+    io.to(roomId).emit("video:seek", {
+      time,
+      updatedAt: room.video.updatedAt,
+    });
+  });
+
+  socket.on("video:request-state", (roomId) => {
+    const room = rooms[roomId];
+    if (!room) return;
+
+    socket.emit("video:state", {
+      ...room.video,
+      hostId: room.hostId,
+    });
   });
 
 
