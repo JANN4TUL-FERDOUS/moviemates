@@ -18,6 +18,7 @@ export default function App() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [showUsers, setShowUsers] = useState(false);
+  const fileInputRef = useRef(null);
 
   /* ---------------- SOCKET ---------------- */
 
@@ -197,6 +198,21 @@ export default function App() {
                       {isPlaying ? "⏸" : "▶"}
                     </button>
                     <button onClick={seekForward}>⏩</button>
+                    <button
+                      title="Load movie"
+                      onClick={() => fileInputRef.current.click()}
+                    >
+                      📁
+                    </button>
+
+                    {/* Hidden file input */}
+                    <input
+                      type="file"
+                      accept="video/*"
+                      ref={fileInputRef}
+                      style={{ display: "none" }}
+                      onChange={loadVideo}
+                    />
                     <button
                       onClick={() => {
                         setShowChat(!showChat);
