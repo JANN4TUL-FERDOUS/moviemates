@@ -114,6 +114,7 @@ export default function App() {
     socket.emit("chat:send", {
       roomId: currentRoom,
       text: chatInput,
+      users,
     });
 
     setChatInput("");
@@ -137,6 +138,7 @@ export default function App() {
         )}
       </header>
 
+      {/*LANDING*/}
       {!user && (
         <div className="landing">
           <h1>Watch movies together. In sync.</h1>
@@ -144,6 +146,7 @@ export default function App() {
         </div>
       )}
 
+      {/*ROOM CREATE */}
       {user && !currentRoom && (
         <div className="room-box">
           <button onClick={() => socket.emit("room:create")}>
@@ -162,98 +165,117 @@ export default function App() {
         </div>
       )}
 
+      {/*ROOM*/}
       {currentRoom && (
-        <div className="video-layout">
+        <>
+
+          {/*MAIN LAYOUT*/}
+
+          <div className="room-layout">
+          
+          {/*video*/}
           <div className="video-wrapper">
-            <input type="file" accept="video/*" onChange={loadVideo} />
-
-            {videoSrc && (
-              <>
-                <video ref={videoRef} src={videoSrc} />
-
-                <div className="controls">
-                  <button onClick={togglePlay}>
-                    {isPlaying ? "⏸" : "▶"}
-                  </button>
-                  <button onClick={seekForward}>⏩</button>
-                  <button
-                    onClick={() => {
-                      setShowChat(!showChat);
-                      setShowUsers(false);
-                    }}
-                  >
-                    💬
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setShowUsers(!showUsers);
-                      setShowChat(false);
-                    }}
-                  >
-                    👥 {users.length}
-                  </button>
-
-                  <button onClick={() => videoRef.current.requestFullscreen()}>
-                    ⛶
-                  </button>
-                  <button
-                    className="leave"
-                    onClick={() => {
-                      setCurrentRoom(null);
-                      setMessages([]);
-                      setVideoSrc(null);
-                      setShowChat(false);
-                      setShowUsers(false);
-                    }}
-                  >
-                    Leave
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-          {(showChat || showUsers) && (
-            <div className="side-panel">
-              {showUsers && (
-                <>
-                  <h3>👥 Users</h3>
-                  <ul className="user-list">
-                    {users.map((u) => (
-                      <li key={u.id}>
-                        <img src={u.avatar} />
-                        {u.name}
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              )}
-
-              {showChat && (
-                <>
-                  <h3>💬 Chat</h3>
-                  <div className="chat-messages">
-                    {messages.map((m, i) => (
-                      <div key={i}>
-                        <strong>{m.user.name}:</strong> {m.text}
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="chat-input">
+              {!videoSrc ? (
+                <div className="upload-center">
+                  <h3>Upload your movie</h3>
+                  <label className="upload-big">
+                    Choose file
                     <input
-                      value={chatInput}
-                      onChange={(e) => setChatInput(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                      placeholder="Type message..."
+                      type="file"
+                      accept="video/*"
+                      hidden
+                      onChange={loadVideo}
                     />
-                    <button onClick={sendMessage}>Send</button>
+                  </label>
+                </div>
+              ) : (
+                <>
+                  <video ref={videoRef} src={videoSrc} />
+
+                  <div className="controls">
+                    <button onClick={togglePlay}>
+                      {isPlaying ? "⏸" : "▶"}
+                    </button>
+                    <button onClick={seekForward}>⏩</button>
+                    <button
+                      onClick={() => {
+                        setShowChat(!showChat);
+                        setShowUsers(false);
+                      }}
+                    >
+                      💬
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setShowUsers(!showUsers);
+                        setShowChat(false);
+                      }}
+                    >
+                      👥 {users.length}
+                    </button>
+
+                    <button onClick={() => videoRef.current.requestFullscreen()}>
+                      ⛶
+                    </button>
+                    <button
+                      className="leave"
+                      onClick={() => {
+                        setCurrentRoom(null);
+                        setMessages([]);
+                        setVideoSrc(null);
+                        setShowChat(false);
+                        setShowUsers(false);
+                      }}
+                    >
+                      Leave
+                    </button>
                   </div>
                 </>
               )}
             </div>
-          )}
-        </div>
+            {(showChat || showUsers) && (
+              <div className="side-panel">
+                {showUsers && (
+                  <>
+                    <h3>👥 Users</h3>
+                    <ul className="user-list">
+                      {users.map((u) => (
+                        <li key={u.id}>
+                          <img src={u.avatar} />
+                          {u.name}
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+
+                {showChat && (
+                  <>
+                    <h3>💬 Chat</h3>
+                    <div className="chat-messages">
+                      {messages.map((m, i) => (
+                        <div key={i}>
+                          <strong>{m.user.name}:</strong> {m.text}
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="chat-input">
+                      <input
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                        placeholder="Type message..."
+                      />
+                      <button onClick={sendMessage}>Send</button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        </>
       )}     
 
     </div>

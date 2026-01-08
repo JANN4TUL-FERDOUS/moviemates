@@ -4,21 +4,24 @@
 
 body {
   margin: 0;
-  background: #0f172a;
+  background: #0b1120;
   color: #e5e7eb;
-  font-family: system-ui;
+  font-family: system-ui, sans-serif;
 }
 
 .app {
   height: 100vh;
 }
 
+/* HEADER */
+
 .header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   padding: 12px 20px;
-  background: #111827;
-  border-bottom: 1px solid #1f2937;
+  background: #020617;
+  border-bottom: 1px solid #1e293b;
 }
 
 .user {
@@ -32,38 +35,120 @@ body {
   border-radius: 50%;
 }
 
+.user button {
+  background: #1e293b;
+  border: none;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* LANDING */
+
 .landing {
   text-align: center;
-  margin-top: 100px;
+  margin-top: 120px;
 }
+
+.landing h1 {
+  font-size: 42px;
+}
+
+/* ROOM JOIN */
 
 .room-box {
   display: flex;
   gap: 10px;
   justify-content: center;
-  margin-top: 50px;
+  margin-top: 60px;
 }
 
+.room-box input {
+  padding: 8px;
+  background: #020617;
+  border: 1px solid #1e293b;
+  color: white;
+  border-radius: 6px;
+}
+
+.room-box button {
+  background: #2563eb;
+  border: none;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* ROOM BAR */
+
+.room-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background: #020617;
+  border-bottom: 1px solid #1e293b;
+}
+
+.upload-btn {
+  background: #1e293b;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* MAIN LAYOUT */
+
+.room-layout {
+  display: flex;
+  height: calc(100vh - 110px);
+}
+
+/* VIDEO */
+
 .video-wrapper {
+  flex: 3;
   position: relative;
-  max-width: 900px;
-  margin: 30px auto;
   background: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 video {
   width: 100%;
-  max-height: 70vh;
+  height: 100%;
+  object-fit: contain;
 }
+
+/* UPLOAD CENTER */
+
+.upload-center {
+  text-align: center;
+}
+
+.upload-big {
+  margin-top: 15px;
+  display: inline-block;
+  background: #2563eb;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* CONTROLS */
 
 .controls {
   position: absolute;
   bottom: 0;
   width: 100%;
   display: flex;
-  gap: 10px;
-  padding: 10px;
-  background: rgba(0, 0, 0, 0.65);
+  gap: 14px;
+  padding: 12px;
+  background: rgba(2, 6, 23, 0.85);
+  align-items: center;
 }
 
 .controls button {
@@ -75,22 +160,22 @@ video {
 }
 
 .controls .leave {
-  color: #ef4444;
   margin-left: auto;
+  color: #ef4444;
 }
 
+/* SIDE PANEL */
+
 .side-panel {
-  position: fixed;
-  right: 0;
-  top: 60px;
-  width: 300px;
-  height: calc(100vh - 60px);
+  flex: 1;
   background: #020617;
-  border-left: 1px solid #1f2937;
-  padding: 12px;
+  border-left: 1px solid #1e293b;
   display: flex;
   flex-direction: column;
+  padding: 12px;
 }
+
+/* USERS */
 
 .user-list {
   list-style: none;
@@ -101,13 +186,15 @@ video {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .user-list img {
-  width: 26px;
+  width: 28px;
   border-radius: 50%;
 }
+
+/* CHAT */
 
 .chat-messages {
   flex: 1;
@@ -117,13 +204,23 @@ video {
 
 .chat-input {
   display: flex;
-  gap: 6px;
+  gap: 8px;
 }
 
 .chat-input input {
   flex: 1;
-  padding: 6px;
+  padding: 8px;
   background: #020617;
-  border: 1px solid #1f2937;
+  border: 1px solid #1e293b;
   color: white;
+  border-radius: 6px;
+}
+
+.chat-input button {
+  background: #2563eb;
+  border: none;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
 }
