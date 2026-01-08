@@ -59,11 +59,16 @@ export default function App() {
       setIsPlaying(isPlaying);
     });
 
-    socket.on("chat:message", (msg) =>
-      setMessages((m) => [...m, msg])
-    );
+    const handleChatMessage = (msg) => {
+      setMessages((m) => [...m, msg]);
+    };
 
-    return () => socket.disconnect();
+    socket.on("chat:message", handleChatMessage);
+
+    return () => {
+      socket.off("chat:message", handleChatMessage);
+      socket.disconnect();
+    };
   }, []);
 
   /* ---------------- AUTH ---------------- */
