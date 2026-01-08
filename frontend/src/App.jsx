@@ -103,6 +103,16 @@ export default function App() {
     const time = videoRef.current.currentTime + 10;
     socket.emit("video:seek", { roomId: currentRoom, time });
   };
+  const sendMessage = () => {
+    if (!chatInput.trim()) return;
+
+    socket.emit("chat:send", {
+      roomId: currentRoom,
+      text: chatInput,
+    });
+
+    setChatInput("");
+  };
 
   /* ---------------- UI ---------------- */
 
@@ -148,40 +158,99 @@ export default function App() {
       )}
 
       {currentRoom && (
-        <div className="video-wrapper">
-          <input type="file" accept="video/*" onChange={loadVideo} />
+        <div className="video-layout">
+          <div className="video-wrapper">
+            <input type="file" accept="video/*" onChange={loadVideo} />
 
-          {videoSrc && (
-            <>
-              <video ref={videoRef} src={videoSrc} />
+            {videoSrc && (
+              <>
+                <video ref={videoRef} src={videoSrc} />
 
-              <div className="controls">
-                <button onClick={togglePlay}>
-                  {isPlaying ? "⏸" : "▶"}
-                </button>
-                <button onClick={seekForward}>⏩</button>
-                <button onClick={() => setShowChat(!showChat)}>💬</button>
-                <button onClick={() => setShowUsers(!showUsers)}>
-                  👥 {users.length}
-                </button>
-                <button onClick={() => videoRef.current.requestFullscreen()}>
-                  ⛶
-                </button>
-                <button
-                  className="leave"
-                  onClick={() => {
-                    setCurrentRoom(null);
-                    setMessages([]);
-                    setVideoSrc(null);
-                  }}
-                >
-                  Leave
-                </button>
-              </div>
-            </>
+                <div className="controls">
+                  <button onClick={togglePlay}>
+                    {isPlaying ? "⏸" : "▶"}
+                  </button>
+                  <button onClick={seekForward}>⏩</button>
+                  <button
+                    onClick={() => {
+                      setShowChat(!showChat);
+                      setShowUsers(false);
+                    }}
+                  >
+                    💬
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setShowUsers(!showUsers);
+                      setShowChat(false);
+                    }}
+                  >
+                    👥 {users.length}
+                  </button>
+
+                  <button onClick={() => videoRef.current.requestFullscreen()}>
+                    ⛶
+                  </button>
+                  <button
+                    className="leave"
+                    onClick={() => {
+                      setCurrentRoom(null);
+                      setMessages([]);
+                      setVideoSrc(null);
+                      setShowChat(false);
+                      setShowUsers(false);
+                    }}
+                  >
+                    Leave
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+          {(showChat || showUsers) && (
+            <div className="side-panel">
+              {showUsers && (
+                <>
+                  <h3>👥 Users</h3>
+                  <ul className="user-list">
+                    {users.map((u) => (
+                      <li key={u.id}>
+                        <img src={u.avatar} />
+                        {u.name}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+
+              {showChat && (
+                <>
+                  <h3>💬 Chat</h3>
+                  <div className="chat-messages">
+                    {messages.map((m, i) => (
+                      <div key={i}>
+                        <strong>{m.user.name}:</strong> {m.text}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="chat-input">
+                    <input
+                      value={chatInput}
+                      onChange={(e) => setChatInput(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                      placeholder="Type message..."
+                    />
+                    <button onClick={sendMessage}>Send</button>
+                  </div>
+                </>
+              )}
+            </div>
           )}
         </div>
-      )}
+      )}     
+
     </div>
   );
 }

@@ -78,3 +78,52 @@ video {
   color: #ef4444;
   margin-left: auto;
 }
+
+.side-panel {
+  position: fixed;
+  right: 0;
+  top: 60px;
+  width: 300px;
+  height: calc(100vh - 60px);
+  background: #020617;
+  border-left: 1px solid #1f2937;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.user-list {
+  list-style: none;
+  padding: 0;
+}
+
+.user-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.user-list img {
+  width: 26px;
+  border-radius: 50%;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+
+.chat-input {
+  display: flex;
+  gap: 6px;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 6px;
+  background: #020617;
+  border: 1px solid #1f2937;
+  color: white;
+}
