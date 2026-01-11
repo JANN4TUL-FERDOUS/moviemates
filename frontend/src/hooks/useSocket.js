@@ -56,8 +56,15 @@ export default function useSocket({
     socket.on("chat:message", handleChat);
 
     return () => {
-      socket.off("chat:message", handleChat);
-      socket.disconnect();
+      socket.off("room:created");
+        socket.off("room:joined");
+        socket.off("room:users");
+        socket.off("video:play");
+        socket.off("video:pause");
+        socket.off("video:seek");
+        socket.off("video:state");
+        socket.off("chat:message");
+        socket.disconnect();
     };
   }, []);
 }
