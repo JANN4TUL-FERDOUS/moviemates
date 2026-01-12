@@ -1,10 +1,15 @@
 import Controls from "./Controls";
+import SeekBar from "./SeekBar";
 
 export default function VideoPlayer({
   videoRef,
   videoSrc,
   loadVideo,
   fileInputRef,
+  currentTime,
+  duration,
+  onSeek,
+  isHost,
   ...props
 }) {
   return (
@@ -25,7 +30,13 @@ export default function VideoPlayer({
       ) : (
         <>
           <video ref={videoRef} src={videoSrc} />
-
+          {/* 🔥 SEEK BAR GOES HERE */}
+          <SeekBar
+            currentTime={currentTime}
+            duration={duration}
+            onSeek={onSeek}
+            disabled={!isHost}
+          />
           <Controls
             {...props}
             openFile={() =>

@@ -224,3 +224,23 @@ video {
   border-radius: 6px;
   cursor: pointer;
 }
+.seek-bar {
+  position: absolute;
+  bottom: 48px; /* sits above controls */
+  left: 0;
+  width: 100%;
+  padding: 0 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.seek-bar input[type="range"] {
+  width: 100%;
+  cursor: pointer;
+}
+
+.seek-bar .time {
+  font-size: 12px;
+  opacity: 0.8;
+  align-self: flex-end;
+}

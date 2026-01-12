@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect} from "react";
 import "./App.css";
 import { socket } from "./socket";
 import useSocket from "./hooks/useSocket";
@@ -25,6 +25,8 @@ export default function App() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [showUsers, setShowUsers] = useState(false);
+  const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
 
   useSocket({
     setCurrentRoom,
@@ -34,6 +36,27 @@ export default function App() {
     setMessages,
     videoRef,
   });
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const handleTimeUpdate = () => {
+      setCurrentTime(video.currentTime);
+    };
+
+    const handleLoadedMetadata = () => {
+      setDuration(video.duration);
+    };
+
+    video.addEventListener("timeupdate", handleTimeUpdate);
+    video.addEventListener("loadedmetadata", handleLoadedMetadata);
+
+    return () => {
+      video.removeEventListener("timeupdate", handleTimeUpdate);
+      video.removeEventListener("loadedmetadata", handleLoadedMetadata);
+    };
+  }, []);
 
   const login = (res) => {
     const u = handleLogin(res);
@@ -82,6 +105,14 @@ export default function App() {
       time: videoRef.current.currentTime + 10,
     });
   };
+  const handleSeek = (time) => {
+    if (!isHost) return;
+    videoRef.current.currentTime = time;
+    socket.emit("video:seek", {
+      roomId: currentRoom,
+      time,
+    });
+  };
 
   const sendMessage = () => {
     if (!chatInput.trim()) return;
@@ -124,6 +155,10 @@ export default function App() {
             users={users}
             setShowChat={setShowChat}
             setShowUsers={setShowUsers}
+            currentTime={currentTime}   
+            duration={duration}        
+            onSeek={handleSeek}         
+            isHost={isHost}   
             requestFull={() =>
               videoRef.current.requestFullscreen()
             }
