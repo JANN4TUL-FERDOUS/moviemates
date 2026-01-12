@@ -57,7 +57,6 @@ io.on("connection", (socket) => {
     rooms[roomId] = {
       hostId: socket.id,
       users: [{ ...socket.user, socketId: socket.id }],
-      hostId: socket.id,
       video: {
         time: 0,
         isPlaying: false,
@@ -72,10 +71,7 @@ io.on("connection", (socket) => {
       isHost: true,
     });
 
-    io.to(roomId).emit("room:users",{
-      users: rooms.users,
-      hostId: rooms.hostId
-    });
+    io.to(roomId).emit("room:users", rooms[roomId].users);
 
     console.log(`Room created: ${roomId}`);
 

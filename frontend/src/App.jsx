@@ -25,7 +25,6 @@ export default function App() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [showUsers, setShowUsers] = useState(false);
-  const [hostId, setHostId]= useState(null);
 
   useSocket({
     setCurrentRoom,
@@ -34,7 +33,6 @@ export default function App() {
     setIsPlaying,
     setMessages,
     videoRef,
-    setHostId
   });
 
   const login = (res) => {
@@ -42,7 +40,7 @@ export default function App() {
     setUser(u);
     socket.emit("user:login", u);
   };
-
+  
   const loadVideo = (e) => {
     const file = e.target.files[0];
     if (!file) return;

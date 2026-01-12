@@ -3,7 +3,7 @@ export default function Controls({
   togglePlay,
   seekForward,
   openFile,
-  users = [],
+  users,
   setShowChat,
   setShowUsers,
   requestFull,

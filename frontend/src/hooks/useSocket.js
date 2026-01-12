@@ -8,7 +8,6 @@ export default function useSocket({
   setIsPlaying,
   setMessages,
   videoRef,
-  setHostId
 }) {
   useEffect(() => {
     socket.connect();
@@ -24,11 +23,7 @@ export default function useSocket({
       socket.emit("video:request-state", roomId);
     });
 
-    socket.on("room:users", ({users,hostId})=>{
-      setUsers(users);
-      setHostId(hostId);
-      setIsHost(socket.id===hostId);
-    });
+    socket.on("room:users", setUsers);
 
     socket.on("video:play", ({ time }) => {
       videoRef.current.currentTime = time;

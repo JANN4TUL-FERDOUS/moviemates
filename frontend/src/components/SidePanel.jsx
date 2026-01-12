@@ -5,7 +5,6 @@ export default function SidePanel({
   showChat,
   showUsers,
   users,
-  hostId,
   messages,
   chatInput,
   setChatInput,
@@ -13,7 +12,7 @@ export default function SidePanel({
 }) {
   return (
     <div className="side-panel">
-      {showUsers && <UserList users={users} hostId={hostId} />}
+      {showUsers && <UserList users={users} />}
 
       {showChat && (
         <ChatPanel
