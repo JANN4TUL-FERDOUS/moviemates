@@ -25,6 +25,7 @@ export default function App() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [showUsers, setShowUsers] = useState(false);
+  const [hostId, setHostId]= useState(null);
 
   useSocket({
     setCurrentRoom,
@@ -33,6 +34,7 @@ export default function App() {
     setIsPlaying,
     setMessages,
     videoRef,
+    setHostId
   });
 
   const login = (res) => {

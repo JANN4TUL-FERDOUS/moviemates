@@ -15,6 +15,7 @@ export default function Controls({
         {isPlaying ? "⏸" : "▶"}
       </button>
 
+
       <button onClick={seekForward}>⏩</button>
 
       <button onClick={openFile}>📁</button>

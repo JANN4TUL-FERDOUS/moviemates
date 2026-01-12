@@ -1,4 +1,4 @@
-export default function UserList({ users }) {
+export default function UserList({ users, hostId }) {
   return (
     <>
       <h3>👥 Users</h3>
@@ -7,6 +7,7 @@ export default function UserList({ users }) {
           <li key={u.id}>
             <img src={u.avatar} />
             {u.name}
+            {u.socketId===hostId && " 👑"}
           </li>
         ))}
       </ul>
