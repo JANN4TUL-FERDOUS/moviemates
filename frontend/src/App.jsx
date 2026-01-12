@@ -40,7 +40,20 @@ export default function App() {
     setUser(u);
     socket.emit("user:login", u);
   };
-  
+  const handleLogout = () => {
+    setUser(null);
+    setCurrentRoom(null);
+    setUsers([]);
+    setMessages([]);
+    setVideoSrc(null);
+    setIsHost(false);
+    setIsPlaying(false);
+    setShowChat(false);
+    setShowUsers(false);
+
+    socket.disconnect();
+  };
+
   const loadVideo = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -86,7 +99,7 @@ export default function App() {
       <Header
         user={user}
         onLogin={login}
-        onLogout={() => setUser(null)}
+        onLogout={handleLogout}
       />
 
       {!user && <Landing />}
@@ -98,7 +111,7 @@ export default function App() {
         />
       )}
 
-      {currentRoom && (
+      {user && currentRoom && (
         <div className="room-layout">
           <VideoPlayer
             videoRef={videoRef}
