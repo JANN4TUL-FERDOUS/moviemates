@@ -1,4 +1,4 @@
-export default function UserList({ users, hostId }) {
+export default function UserList({ users=[], hostId }) {
   return (
     <>
       <h3>👥 Users</h3>

@@ -3,7 +3,7 @@ export default function Controls({
   togglePlay,
   seekForward,
   openFile,
-  users,
+  users = [],
   setShowChat,
   setShowUsers,
   requestFull,
@@ -14,7 +14,6 @@ export default function Controls({
       <button onClick={togglePlay}>
         {isPlaying ? "⏸" : "▶"}
       </button>
-
 
       <button onClick={seekForward}>⏩</button>
 
