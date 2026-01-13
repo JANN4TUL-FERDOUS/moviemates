@@ -131,6 +131,16 @@ export default function App() {
       time: videoRef.current.currentTime + 10,
     });
   };
+  const seekBackward = () => {
+    if (!isHost) return;
+    socket.emit("video:seek", {
+      roomId:currentRoom,
+      time: Math.max(
+        0,
+        videoRef.current.currentTime-10
+      ),
+    });
+  };
   const handleSeek = (time) => {
     if (!isHost) return;
 
@@ -188,6 +198,7 @@ export default function App() {
             isPlaying={isPlaying}
             togglePlay={togglePlay}
             seekForward={seekForward}
+            seekBackward={seekBackward}
             users={users}
             setShowChat={setShowChat}
             setShowUsers={setShowUsers}

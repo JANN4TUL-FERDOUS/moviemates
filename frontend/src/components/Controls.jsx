@@ -2,6 +2,7 @@ export default function Controls({
   isPlaying,
   togglePlay,
   seekForward,
+  seekBackward,
   openFile,
   users,
   setShowChat,
@@ -14,7 +15,7 @@ export default function Controls({
       <button onClick={togglePlay}>
         {isPlaying ? "⏸" : "▶"}
       </button>
-
+      <button onClick={seekBackward}>⏪</button>
       <button onClick={seekForward}>⏩</button>
 
       <button onClick={openFile}>📁</button>
