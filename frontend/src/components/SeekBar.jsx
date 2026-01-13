@@ -2,26 +2,29 @@ import { useState } from "react";
 
 export default function SeekBar({ currentTime, duration, onSeek, isHost }) {
   const handleClick = (e) => {
-    if (!isHost) return; 
+    if (!isHost) return;
 
-    const rect = e.target.getBoundingClientRect();
+    // Get the <input> range element
+    const bar = e.currentTarget.querySelector("input");
+    const rect = bar.getBoundingClientRect();
+
+    // Calculate percentage click
     const clickX = e.clientX - rect.left;
-    const newTime = (clickX / rect.width) * duration;
+    const percent = Math.min(Math.max(clickX / rect.width, 0), 1);
+
+    const newTime = percent * duration;
     onSeek(newTime);
   };
 
   return (
-    <div className="seek-bar">
+    <div className="seek-bar" onClick={handleClick}>
       <input
         type="range"
         min={0}
         max={duration || 0}
-        step={0.1}
+        step={0.01}
         value={currentTime || 0}
-        disabled={!isHost}
-        readOnly={!isHost} 
-        onChange={(e) => isHost && onSeek(Number(e.target.value))}
-        onClick={handleClick}
+        readOnly // host updates via click only
       />
       <div className="time">
         {format(currentTime)} / {format(duration)}
