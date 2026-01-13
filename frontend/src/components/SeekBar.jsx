@@ -1,16 +1,17 @@
+import { useState } from "react";
+
 export default function SeekBar({ currentTime, duration, onSeek, isHost }) {
   const handleClick = (e) => {
-    if (!isHost) return;
+    if (!isHost) return; 
 
-    const rect = e.currentTarget.getBoundingClientRect();
+    const rect = e.target.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     const newTime = (clickX / rect.width) * duration;
-
     onSeek(newTime);
   };
 
   return (
-    <div className="seek-bar" onClick={handleClick}>
+    <div className="seek-bar">
       <input
         type="range"
         min={0}
@@ -18,7 +19,9 @@ export default function SeekBar({ currentTime, duration, onSeek, isHost }) {
         step={0.1}
         value={currentTime || 0}
         disabled={!isHost}
-        readOnly // prevents drag for everyone
+        readOnly={!isHost} 
+        onChange={(e) => isHost && onSeek(Number(e.target.value))}
+        onClick={handleClick}
       />
       <div className="time">
         {format(currentTime)} / {format(duration)}

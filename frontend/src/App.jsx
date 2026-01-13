@@ -133,12 +133,22 @@ export default function App() {
   };
   const handleSeek = (time) => {
     if (!isHost) return;
-    videoRef.current.currentTime = time;
+
+    // Clamp time between 0 and actual video duration
+    const video = videoRef.current;
+    if (!video || !duration) return;
+
+    const clampedTime = Math.min(Math.max(time, 0), video.duration);
+
+    video.currentTime = clampedTime; // update video
+    setCurrentTime(clampedTime); // update UI immediately
+
     socket.emit("video:seek", {
       roomId: currentRoom,
-      time,
+      time: clampedTime,
     });
   };
+
 
   const sendMessage = () => {
     if (!chatInput.trim()) return;
