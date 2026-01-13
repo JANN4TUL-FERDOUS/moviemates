@@ -69,6 +69,20 @@ export default function App() {
     return () => video.removeEventListener("loadedmetadata", handleLoadedMetadata);
   }, [videoSrc]);
 
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    // This will track the video’s actual time every 200ms
+    const interval = setInterval(() => {
+      if (!video.paused) {
+        setCurrentTime(video.currentTime); // ✅ matches actual video time
+      }
+    }, 200); // small interval for smooth progress
+
+    return () => clearInterval(interval);
+  }, [videoSrc]);
+
 
   const login = (res) => {
     const u = handleLogin(res);
