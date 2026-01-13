@@ -30,12 +30,12 @@ export default function VideoPlayer({
       ) : (
         <>
           <video ref={videoRef} src={videoSrc} />
-          {/* 🔥 SEEK BAR GOES HERE */}
+          
           <SeekBar
             currentTime={currentTime}
             duration={duration}
             onSeek={onSeek}
-            disabled={!isHost}
+            isHost={isHost} 
           />
           <Controls
             {...props}

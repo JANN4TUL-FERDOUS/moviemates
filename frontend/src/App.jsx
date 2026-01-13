@@ -38,25 +38,37 @@ export default function App() {
   });
 
   useEffect(() => {
+    socket.on("video:seek", ({ time }) => {
+      videoRef.current.currentTime = time;
+      setCurrentTime(time);
+    });
+
+    return () => socket.off("video:seek");
+  }, []);
+
+  useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
     const handleTimeUpdate = () => {
-      setCurrentTime(video.currentTime);
-    };
-
-    const handleLoadedMetadata = () => {
-      setDuration(video.duration);
+      setCurrentTime(video.currentTime); // local update for all users
     };
 
     video.addEventListener("timeupdate", handleTimeUpdate);
+
+    return () => video.removeEventListener("timeupdate", handleTimeUpdate);
+  }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const handleLoadedMetadata = () => setDuration(video.duration);
     video.addEventListener("loadedmetadata", handleLoadedMetadata);
 
-    return () => {
-      video.removeEventListener("timeupdate", handleTimeUpdate);
-      video.removeEventListener("loadedmetadata", handleLoadedMetadata);
-    };
-  }, []);
+    return () => video.removeEventListener("loadedmetadata", handleLoadedMetadata);
+  }, [videoSrc]);
+
 
   const login = (res) => {
     const u = handleLogin(res);
