@@ -36,6 +36,15 @@ export default function App() {
     setMessages,
     videoRef,
   });
+  useEffect(() => {
+    socket.on("video:mismatch", () => {
+      alert("❌ Wrong movie! Upload the same file as host.");
+      setVideoSrc(null);
+      videoRef.current?.pause();
+    });
+
+    return () => socket.off("video:mismatch");
+  }, []);
 
   useEffect(() => {
     socket.on("video:seek", ({ time }) => {
@@ -82,6 +91,7 @@ export default function App() {
 
     return () => clearInterval(interval);
   }, [videoSrc]);
+  
 
 
   const login = (res) => {
@@ -106,8 +116,26 @@ export default function App() {
   const loadVideo = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    setVideoSrc(URL.createObjectURL(file));
+
+    const video = document.createElement("video");
+    video.preload = "metadata";
+
+    video.onloadedmetadata = () => {
+      const meta = {
+        name: file.name,
+        size: file.size,
+        duration: video.duration,
+        roomId: currentRoom
+      };
+
+      socket.emit("video:meta", meta);
+
+      setVideoSrc(URL.createObjectURL(file));
+    };
+
+    video.src = URL.createObjectURL(file);
   };
+
 
   const togglePlay = () => {
     if (!isHost) return;

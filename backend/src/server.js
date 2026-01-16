@@ -22,6 +22,8 @@ const requireLogin = (socket) => {
 };
 
 const rooms = {};
+const roomVideos = {}; 
+
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
@@ -37,8 +39,10 @@ io.on("connection", (socket) => {
 
       if (room.users.length === 0) {
         delete rooms[roomId];
+        delete roomVideos[roomId];
         console.log(`Room deleted: ${roomId}`);
-      } else {
+      } 
+      else {
         io.to(roomId).emit("room:users", room.users);
       }
     }
@@ -122,6 +126,29 @@ io.on("connection", (socket) => {
 
     io.to(roomId).emit("chat:message", message);
   });
+  socket.on("video:meta", (meta) => {
+    const { roomId } = meta;
+
+    // Host uploads first
+    if (!roomVideos[roomId]) {
+      roomVideos[roomId] = meta;
+      socket.emit("video:accepted");
+      return;
+    }
+
+    const host = roomVideos[roomId];
+
+    const isMatch =
+      host.name === meta.name &&
+      host.size === meta.size &&
+      Math.abs(host.duration - meta.duration) < 1;
+
+    if (!isMatch) {
+      socket.emit("video:mismatch", host);
+    } else {
+      socket.emit("video:accepted");
+    }
+  });
 
   // ---------------- VIDEO EVENTS ----------------
 
@@ -176,8 +203,6 @@ io.on("connection", (socket) => {
       hostId: room.hostId,
     });
   });
-
-
 
 
 });
