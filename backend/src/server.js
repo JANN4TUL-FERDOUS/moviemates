@@ -128,27 +128,37 @@ io.on("connection", (socket) => {
   });
   socket.on("video:meta", (meta) => {
     const { roomId } = meta;
+    const room = rooms[roomId];
 
-    // Host uploads first
-    if (!roomVideos[roomId]) {
-      roomVideos[roomId] = meta;
-      socket.emit("video:accepted");
+    if (!room) return;
+
+    if (socket.id !== room.hostId) {
+      const hostVideo = roomVideos[roomId];
+
+      if (!hostVideo) {
+        socket.emit("video:error", "Host has not uploaded yet");
+        return;
+      }
+
+      const isMatch =
+        hostVideo.name === meta.name &&
+        hostVideo.size === meta.size &&
+        Math.abs(hostVideo.duration - meta.duration) < 1;
+
+      if (!isMatch) {
+        socket.emit("video:mismatch", hostVideo);
+      } else {
+        socket.emit("video:accepted");
+      }
+
       return;
     }
 
-    const host = roomVideos[roomId];
-
-    const isMatch =
-      host.name === meta.name &&
-      host.size === meta.size &&
-      Math.abs(host.duration - meta.duration) < 1;
-
-    if (!isMatch) {
-      socket.emit("video:mismatch", host);
-    } else {
-      socket.emit("video:accepted");
-    }
+    
+    roomVideos[roomId] = meta;
+    socket.emit("video:accepted");
   });
+
 
   // ---------------- VIDEO EVENTS ----------------
 

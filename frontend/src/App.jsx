@@ -37,14 +37,23 @@ export default function App() {
     videoRef,
   });
   useEffect(() => {
+    socket.on("video:error", (msg) => {
+      alert(msg);
+      setVideoSrc(null);
+    });
+
     socket.on("video:mismatch", () => {
       alert("❌ Wrong movie! Upload the same file as host.");
       setVideoSrc(null);
       videoRef.current?.pause();
     });
 
-    return () => socket.off("video:mismatch");
+    return () => {
+      socket.off("video:error");
+      socket.off("video:mismatch");
+    };
   }, []);
+
 
   useEffect(() => {
     socket.on("video:seek", ({ time }) => {
@@ -119,7 +128,7 @@ export default function App() {
 
     const video = document.createElement("video");
     video.preload = "metadata";
-
+    
     video.onloadedmetadata = () => {
       const meta = {
         name: file.name,
@@ -129,9 +138,12 @@ export default function App() {
       };
 
       socket.emit("video:meta", meta);
-
+      socket.once("video:accepted", () => {
+        setVideoSrc(URL.createObjectURL(file));
+      });
       setVideoSrc(URL.createObjectURL(file));
     };
+
 
     video.src = URL.createObjectURL(file);
   };
