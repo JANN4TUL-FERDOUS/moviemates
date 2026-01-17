@@ -385,3 +385,19 @@ video {
   opacity: 0.8;
   align-self: flex-end;
 }
+
+
+
+button {
+  transition: 0.2s ease;
+}
+
+button:hover {
+  filter: brightness(1.15);
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: scale(0.96);
+}
+
