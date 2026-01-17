@@ -161,9 +161,49 @@ hr {
   border-top: 1px solid #1e293b;
   margin: 24px 0;
 }
+/*Room info Bar*/
+.room-info-bar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  background: #020617;
+  border-bottom: 1px solid #1e293b;
+  padding: 10px;
+  font-size: 14px;
+}
+
+.room-info-bar button {
+  background: #2563eb;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+}
+
+/* TOAST */
+
+#toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: #22c55e;
+  color: black;
+  padding: 10px 14px;
+  border-radius: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.3s;
+}
+
+#toast.show {
+  opacity: 1;
+}
 
 
 /* ROOM BAR */
+
 
 .room-bar {
   display: flex;

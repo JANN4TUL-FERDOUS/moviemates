@@ -9,6 +9,8 @@ import Landing from "./components/Landing";
 import RoomJoin from "./components/RoomJoin";
 import VideoPlayer from "./components/VideoPlayer";
 import SidePanel from "./components/SidePanel";
+import RoomInfo from "./components/RoomInfo";
+
 
 export default function App() {
   const videoRef = useRef(null);
@@ -250,7 +252,10 @@ export default function App() {
       )}
 
       {user && currentRoom && (
-        <div className="room-layout">
+        <>
+          <RoomInfo roomId={currentRoom} />
+
+          <div className="room-layout">
           <VideoPlayer
             videoRef={videoRef}
             fileInputRef={fileInputRef}
@@ -306,6 +311,8 @@ export default function App() {
             />
           )}
         </div>
+        
+        </>
       )}
     </div>
   );
