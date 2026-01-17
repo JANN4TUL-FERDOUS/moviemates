@@ -54,22 +54,45 @@ export default function App() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!currentRoom || isHost) return;
+
+    const interval = setInterval(() => {
+      if (videoRef.current?.readyState >= 2) {
+        socket.emit("video:request-state", currentRoom);
+        clearInterval(interval);
+      }
+    }, 300);
+
+    return () => clearInterval(interval);
+  }, [currentRoom]);
 
   useEffect(() => {
-    socket.on("video:seek", ({ time }) => {
-      videoRef.current.currentTime = time;
-      setCurrentTime(time);
+    socket.on("video:state", ({ time, isPlaying, updatedAt }) => {
+      const video = videoRef.current;
+      if (!video) return;
+
+      // latency correction
+      const diff = (Date.now() - updatedAt) / 1000;
+      const finalTime = isPlaying ? time + diff : time;
+
+      video.currentTime = finalTime;
+
+      isPlaying ? video.play() : video.pause();
+
+      setCurrentTime(finalTime);
+      setIsPlaying(isPlaying);
     });
 
-    return () => socket.off("video:seek");
+    return () => socket.off("video:state");
   }, []);
-
+  
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
     const handleTimeUpdate = () => {
-      setCurrentTime(video.currentTime); // local update for all users
+      setCurrentTime(video.currentTime); 
     };
 
     video.addEventListener("timeupdate", handleTimeUpdate);
@@ -91,12 +114,11 @@ export default function App() {
     const video = videoRef.current;
     if (!video) return;
 
-    // This will track the video’s actual time every 200ms
     const interval = setInterval(() => {
       if (!video.paused) {
-        setCurrentTime(video.currentTime); // ✅ matches actual video time
+        setCurrentTime(video.currentTime); 
       }
-    }, 200); // small interval for smooth progress
+    }, 200); 
 
     return () => clearInterval(interval);
   }, [videoSrc]);
@@ -141,7 +163,6 @@ export default function App() {
       socket.once("video:accepted", () => {
         setVideoSrc(URL.createObjectURL(file));
       });
-      setVideoSrc(URL.createObjectURL(file));
     };
 
 

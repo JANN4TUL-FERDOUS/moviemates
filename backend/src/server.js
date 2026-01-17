@@ -118,12 +118,6 @@ io.on("connection", (socket) => {
       u => u.socketId !== socket.id
     );
 
-    room.video = {
-      time: 0,
-      isPlaying: false,
-      updatedAt: Date.now(),
-    };
-
     socket.leave(roomId);
 
     io.to(roomId).emit("room:users", room.users);
@@ -193,7 +187,7 @@ io.on("connection", (socket) => {
       updatedAt: Date.now(),
     };
 
-    io.to(roomId).emit("video:play", room.video);
+    io.to(roomId).emit("video:state", room.video);
   });
 
   socket.on("video:pause", ({ roomId, time }) => {
@@ -206,7 +200,7 @@ io.on("connection", (socket) => {
       updatedAt: Date.now(),
     };
 
-    io.to(roomId).emit("video:pause", room.video);
+    io.to(roomId).emit("video:state", room.video);
   });
 
   socket.on("video:seek", ({ roomId, time }) => {
@@ -216,10 +210,7 @@ io.on("connection", (socket) => {
     room.video.time = time;
     room.video.updatedAt = Date.now();
 
-    io.to(roomId).emit("video:seek", {
-      time,
-      updatedAt: room.video.updatedAt,
-    });
+    io.to(roomId).emit("video:state", room.video);
   });
 
   socket.on("video:request-state", (roomId) => {
