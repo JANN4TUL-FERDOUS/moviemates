@@ -184,22 +184,41 @@ hr {
 
 /* TOAST */
 
-#toast {
+.toast {
   position: fixed;
-  bottom: 30px;
-  right: 30px;
-  background: #22c55e;
-  color: black;
-  padding: 10px 14px;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  background: #020617;
+  border: 1px solid #1e293b;
+  color: #e5e7eb;
+
+  padding: 8px 14px;
   border-radius: 8px;
-  opacity: 0;
-  pointer-events: none;
-  transition: 0.3s;
+  font-size: 14px;
+
+  animation: fadeInOut 2.5s ease;
+  z-index: 9999;
 }
 
-#toast.show {
-  opacity: 1;
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 10px);
+  }
+  10% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
+
 
 
 /* ROOM BAR */

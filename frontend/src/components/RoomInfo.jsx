@@ -1,26 +1,29 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 export default function RoomInfo({ roomId }) {
+  const [toast, setToast] = useState("");
+  const timer = useRef(null);
+
   const copyRoomId = async () => {
     await navigator.clipboard.writeText(roomId);
 
-    const toast = document.getElementById("toast");
-    toast.classList.add("show");
+    setToast("Copied to clipboard");
 
-    setTimeout(() => {
-      toast.classList.remove("show");
-    }, 2000);
+    if (timer.current) clearTimeout(timer.current);
+
+    timer.current = setTimeout(() => {
+      setToast("");
+    }, 2500); // 2.5 seconds
   };
 
   return (
-    <div className="room-info-bar">
-      🎬 Room ID: <b>{roomId}</b>
+    <>
+      <div className="room-info-bar">
+        🎬 Room ID: <b>{roomId}</b>
+        <button onClick={copyRoomId}>Copy</button>
+      </div>
 
-      <button onClick={copyRoomId}>
-        Copy
-      </button>
-
-      <div id="toast">✔ Room ID copied!</div>
-    </div>
+      {toast && <div className="toast">{toast}</div>}
+    </>
   );
 }
