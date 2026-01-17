@@ -110,6 +110,24 @@ io.on("connection", (socket) => {
 
     console.log(`User joined room: ${roomId}`);
   });
+  socket.on("room:leave", (roomId) => {
+    const room = rooms[roomId];
+    if (!room) return;
+
+    room.users = room.users.filter(
+      u => u.socketId !== socket.id
+    );
+
+    room.video = {
+      time: 0,
+      isPlaying: false,
+      updatedAt: Date.now(),
+    };
+
+    socket.leave(roomId);
+
+    io.to(roomId).emit("room:users", room.users);
+  });
 
   socket.on("chat:send", ({ roomId, text }) => {
     if (!socket.user || !roomId) return;

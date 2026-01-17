@@ -250,12 +250,27 @@ export default function App() {
               videoRef.current.requestFullscreen()
             }
             leaveRoom={() => {
-              setCurrentRoom(null);
-              setMessages([]);
+              socket.emit("room:leave", currentRoom);
+
+              const video = videoRef.current;
+
+              if (video) {
+                video.pause();
+                video.currentTime = 0;
+                video.removeAttribute("src"); 
+                video.load();                
+              }
+
               setVideoSrc(null);
+              setIsPlaying(false);
+              setCurrentTime(0);
+              setDuration(0);
+              setMessages([]);
               setShowChat(false);
               setShowUsers(false);
+              setCurrentRoom(null);
             }}
+
           />
 
           {(showChat || showUsers) && (
