@@ -248,6 +248,8 @@ export default function App() {
         <RoomJoin
           roomId={roomId}
           setRoomId={setRoomId}
+          setCurrentRoom={setCurrentRoom}
+          setIsHost={setIsHost}
         />
       )}
 
