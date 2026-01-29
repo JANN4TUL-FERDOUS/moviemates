@@ -10,10 +10,16 @@ export default function SidePanel({
   setChatInput,
   sendMessage,
   currentUser,
+  setShowChat,
 }) {
   return (
     <div className="side-panel">
-      {showUsers && <UserList users={users} />}
+      {showUsers && ( 
+        <UserList 
+          users={users} 
+  
+        />
+      )}
 
       {showChat && (
         <ChatPanel
@@ -22,6 +28,7 @@ export default function SidePanel({
           setChatInput={setChatInput}
           sendMessage={sendMessage}
           currentUser={currentUser}
+          onClose={()=> setShowChat(false)}
         />
       )}
     </div>

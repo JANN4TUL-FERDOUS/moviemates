@@ -6,6 +6,7 @@ export default function ChatPanel({
   setChatInput,
   sendMessage,
   currentUser,
+  onClose,
 }) {
   const messagesEndRef = useRef(null);
 
@@ -16,7 +17,12 @@ export default function ChatPanel({
 
   return (
     <div className="chat-panel">
-      <div className="chat-header">💬 Chat</div>
+      <div className="chat-header">
+        <span>💬 Chat</span>
+        <button className="chat-close-btn" onClick={onClose}>
+          ✕
+        </button>
+      </div>
 
       <div className="chat-messages">
         {messages.map((m, i) => {
@@ -27,7 +33,6 @@ export default function ChatPanel({
               key={i}
               className={`chat-message ${isOwnMessage ? "own" : "other"}`}
             >
-              {/* Avatar only for other users */}
               {!isOwnMessage && (
                 <img
                   className="chat-avatar"
@@ -38,7 +43,6 @@ export default function ChatPanel({
               )}
 
               <div className="chat-bubble">
-                {/* Username only for other users */}
                 {!isOwnMessage && (
                   <div className="chat-name">{m.user.name}</div>
                 )}
@@ -56,7 +60,7 @@ export default function ChatPanel({
           );
         })}
 
-        {/* Auto-scroll anchor */}
+        
         <div ref={messagesEndRef} />
       </div>
 

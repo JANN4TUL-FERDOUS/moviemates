@@ -311,6 +311,8 @@ export default function App() {
               setChatInput={setChatInput}
               sendMessage={sendMessage}
               currentUser={user}
+              setShowChat={setShowChat}
+             // setShowUsers={setShowUsers(false)}
             />
           )}
         </div>
