@@ -11,13 +11,14 @@ export default function SidePanel({
   sendMessage,
   currentUser,
   setShowChat,
+  setShowUsers,
 }) {
   return (
     <div className="side-panel">
       {showUsers && ( 
         <UserList 
           users={users} 
-  
+          onClose={() => setShowUsers(false)}
         />
       )}
 
