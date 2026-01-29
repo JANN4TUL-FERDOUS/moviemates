@@ -337,38 +337,109 @@ video {
 
 /* CHAT */
 
+
+.chat-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #0b141a; 
+}
+
+
+.chat-header {
+  padding: 10px;
+  font-weight: bold;
+  background: #202c33;
+  color: #e9edef;
+}
+
+
 .chat-messages {
   flex: 1;
+  padding: 10px;
   overflow-y: auto;
-  margin-bottom: 10px;
 }
+
+
+.chat-message {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+
+.chat-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+
+.chat-bubble {
+  background: #202c33;
+  padding: 8px 10px;
+  border-radius: 8px;
+  max-width: 75%;
+  
+}
+
+
+.chat-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #53bdeb; 
+}
+
+
+.chat-text {
+  font-size: 0.95rem;
+  color: #e9edef;
+  line-height: 1.4;
+}
+
+
+.chat-time {
+  font-size: 0.7rem;
+  color: #8696a0;
+  text-align: right;
+  margin-top: 4px;
+}
+
 
 .chat-input {
   display: flex;
-  gap: 8px;
+  padding: 8px;
+  background: #202c33;
 }
+
 
 .chat-input input {
   flex: 1;
-  padding: 8px;
-  background: #020617;
-  border: 1px solid #1e293b;
-  color: white;
-  border-radius: 6px;
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: none;
+  outline: none;
+  background: #2a3942;
+  color: #e9edef;
 }
 
+
 .chat-input button {
-  background: #2563eb;
-  border: none;
-  color: white;
+  margin-left: 8px;
   padding: 8px 14px;
-  border-radius: 6px;
+  border-radius: 20px;
+  border: none;
+  background: #00a884;
+  color: white;
   cursor: pointer;
 }
+
+/*progress bar*/
+
 .seek-bar {
   position: absolute;
-  bottom: 48px; /* sits above controls */
-  left: 0;
+  bottom: 48px; 
   width: 100%;
   padding: 0 12px;
   display: flex;

@@ -5,14 +5,35 @@ export default function ChatPanel({
   sendMessage,
 }) {
   return (
-    <>
-      <h3>💬 Chat</h3>
+    <div className="chat-panel">
+      <div className="chat-header">💬 Chat</div>
 
       <div className="chat-messages">
         {messages.map((m, i) => (
-          <div key={i}>
-            <strong>{m.user.name}:</strong>{" "}
-            {m.text}
+          <div className="chat-message" key={i}>
+            <img
+              className="chat-avatar"
+              src={m.user.avatar}
+              alt={m.user.name}
+              referrerPolicy="no-referrer"
+            />
+
+            <div className="chat-bubble">
+              <div className="chat-name">
+                {m.user.name}
+              </div>
+
+              <div className="chat-text">
+                {m.text}
+              </div>
+
+              <div className="chat-time">
+                {new Date(m.timestamp).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </div>
+            </div>
           </div>
         ))}
       </div>
@@ -20,18 +41,12 @@ export default function ChatPanel({
       <div className="chat-input">
         <input
           value={chatInput}
-          onChange={(e) =>
-            setChatInput(e.target.value)
-          }
-          onKeyDown={(e) =>
-            e.key === "Enter" && sendMessage()
-          }
-          placeholder="Type message..."
+          onChange={(e) => setChatInput(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+          placeholder="Type a message"
         />
-        <button onClick={sendMessage}>
-          Send
-        </button>
+        <button onClick={sendMessage}>Send</button>
       </div>
-    </>
+    </div>
   );
 }
