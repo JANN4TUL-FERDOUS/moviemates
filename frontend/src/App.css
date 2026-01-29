@@ -382,6 +382,9 @@ video {
   border-radius: 8px;
   max-width: 75%;
   
+  word-wrap: break-word;       
+  overflow-wrap: break-word;   
+  hyphens: auto; 
 }
 
 
@@ -434,6 +437,26 @@ video {
   color: white;
   cursor: pointer;
 }
+
+.chat-message.other {
+  justify-content: flex-start;
+}
+
+.chat-message.own {
+  justify-content: flex-end;
+}
+
+.chat-message.other .chat-avatar {
+  margin-right: 8px;
+}
+
+.chat-message.own .chat-bubble {
+  margin-left: auto;
+}
+.chat-message.own .chat-time {
+  text-align: right;
+}
+
 
 /*progress bar*/
 

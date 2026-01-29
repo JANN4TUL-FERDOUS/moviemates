@@ -9,6 +9,7 @@ export default function SidePanel({
   chatInput,
   setChatInput,
   sendMessage,
+  currentUser,
 }) {
   return (
     <div className="side-panel">
@@ -20,6 +21,7 @@ export default function SidePanel({
           chatInput={chatInput}
           setChatInput={setChatInput}
           sendMessage={sendMessage}
+          currentUser={currentUser}
         />
       )}
     </div>

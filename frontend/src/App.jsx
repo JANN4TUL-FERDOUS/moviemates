@@ -310,6 +310,7 @@ export default function App() {
               chatInput={chatInput}
               setChatInput={setChatInput}
               sendMessage={sendMessage}
+              currentUser={user}
             />
           )}
         </div>
