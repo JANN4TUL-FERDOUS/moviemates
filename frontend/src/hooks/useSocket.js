@@ -25,29 +25,35 @@ export default function useSocket({
 
     socket.on("room:users", setUsers);
 
-    socket.on("video:play", ({ time }) => {
-      videoRef.current.currentTime = time;
-      videoRef.current.play();
-      setIsPlaying(true);
-    });
+    socket.on("video:state", ({ time, isPlaying, updatedAt }) => {
+      if (!videoRef.current) return;
 
-    socket.on("video:pause", ({ time }) => {
-      videoRef.current.currentTime = time;
-      videoRef.current.pause();
-      setIsPlaying(false);
-    });
+      const now = Date.now();
+      const networkDelay = updatedAt ? (now - updatedAt) / 1000 : 0;
 
-    socket.on("video:seek", ({ time }) => {
-      videoRef.current.currentTime = time;
-    });
+      const targetTime = isPlaying
+        ? time + networkDelay
+        : time;
 
-    socket.on("video:state", ({ time, isPlaying }) => {
-      videoRef.current.currentTime = time;
-      isPlaying
-        ? videoRef.current.play()
-        : videoRef.current.pause();
+      const currentTime = videoRef.current.currentTime;
+      const diff = Math.abs(currentTime - targetTime);
+
+      if (diff > 0.01) {
+        videoRef.current.currentTime = targetTime;
+      }
+
+      if (isPlaying && videoRef.current.paused) {
+        videoRef.current.play();
+      }
+
+      if (!isPlaying && !videoRef.current.paused) {
+        videoRef.current.pause();
+      }
+
       setIsPlaying(isPlaying);
     });
+
+
 
     const handleChat = (msg) => {
       setMessages((m) => [...m, msg]);
@@ -59,9 +65,6 @@ export default function useSocket({
       socket.off("room:created");
         socket.off("room:joined");
         socket.off("room:users");
-        socket.off("video:play");
-        socket.off("video:pause");
-        socket.off("video:seek");
         socket.off("video:state");
         socket.off("chat:message");
         socket.disconnect();

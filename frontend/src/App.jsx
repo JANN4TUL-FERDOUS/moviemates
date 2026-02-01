@@ -69,25 +69,6 @@ export default function App() {
     return () => clearInterval(interval);
   }, [currentRoom]);
 
-  useEffect(() => {
-    socket.on("video:state", ({ time, isPlaying, updatedAt }) => {
-      const video = videoRef.current;
-      if (!video) return;
-
-      // latency correction
-      const diff = (Date.now() - updatedAt) / 1000;
-      const finalTime = isPlaying ? time + diff : time;
-
-      video.currentTime = finalTime;
-
-      isPlaying ? video.play() : video.pause();
-
-      setCurrentTime(finalTime);
-      setIsPlaying(isPlaying);
-    });
-
-    return () => socket.off("video:state");
-  }, []);
   
   useEffect(() => {
     const video = videoRef.current;
@@ -101,6 +82,22 @@ export default function App() {
 
     return () => video.removeEventListener("timeupdate", handleTimeUpdate);
   }, []);
+
+  useEffect(() => {
+    if (!isHost || !videoRef.current) return;
+
+    const interval = setInterval(() => {
+      socket.emit("video:sync", {
+        time: videoRef.current.currentTime,
+        isPlaying: !videoRef.current.paused,
+        updatedAt: Date.now(),
+      });
+    }, 10000); 
+
+    return () => clearInterval(interval);
+  }, [isHost]);
+
+
 
   useEffect(() => {
     const video = videoRef.current;
@@ -213,8 +210,8 @@ export default function App() {
 
     const clampedTime = Math.min(Math.max(time, 0), video.duration);
 
-    video.currentTime = clampedTime; // update video
-    setCurrentTime(clampedTime); // update UI immediately
+    video.currentTime = clampedTime; 
+    setCurrentTime(clampedTime); 
 
     socket.emit("video:seek", {
       roomId: currentRoom,

@@ -69,6 +69,7 @@ io.on("connection", (socket) => {
     };
 
     socket.join(roomId);
+    socket.roomId = roomId;
 
     socket.emit("room:created", {
       roomId,
@@ -100,6 +101,7 @@ io.on("connection", (socket) => {
     }
 
     socket.join(roomId);
+    socket.roomId = roomId;
 
     socket.emit("room:joined", {
       roomId,
@@ -222,7 +224,19 @@ io.on("connection", (socket) => {
       hostId: room.hostId,
     });
   });
+  
+  socket.on("video:sync", ({ roomId, time, isPlaying }) => {
+    const room = rooms[roomId];
+    if (!room || room.hostId !== socket.id) return;
 
+    room.video = {
+      time,
+      isPlaying,
+      updatedAt: Date.now(),
+    };
+
+    io.to(roomId).emit("video:state", room.video);
+  });
 
 });
 app.get("/", (req, res) => {
