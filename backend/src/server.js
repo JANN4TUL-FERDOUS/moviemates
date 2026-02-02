@@ -23,6 +23,20 @@ const requireLogin = (socket) => {
 
 const rooms = {};
 const roomVideos = {}; 
+const assignNewHost = (room, io, roomId) => {
+  if (room.users.length === 0) return;
+
+  const newHost = room.users[0];
+  room.hostId = newHost.socketId;
+
+  io.to(roomId).emit("room:host-changed", {
+    hostId: room.hostId,
+    hostUser: newHost,
+  });
+
+  console.log(`New host assigned in room ${roomId}`);
+};
+
 
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
@@ -32,6 +46,7 @@ io.on("connection", (socket) => {
 
     for (const roomId in rooms) {
       const room = rooms[roomId];
+      const wasHost = room.hostId === socket.id;
 
       room.users = room.users.filter(
         (u) => u.socketId !== socket.id
@@ -43,6 +58,9 @@ io.on("connection", (socket) => {
         console.log(`Room deleted: ${roomId}`);
       } 
       else {
+        if(wasHost){
+          assignNewHost(room, io, roomId);
+        }
         io.to(roomId).emit("room:users", room.users);
       }
     }
@@ -116,11 +134,28 @@ io.on("connection", (socket) => {
     const room = rooms[roomId];
     if (!room) return;
 
+    const wasHost = room.hostId === socket.id;
+
     room.users = room.users.filter(
       u => u.socketId !== socket.id
     );
 
     socket.leave(roomId);
+
+    if(room.users.length === 0){
+      delete rooms[roomId];
+      delete roomVideos[roomId];
+      return;
+    }
+
+    if (wasHost) {
+      const newHost = room.users[0];
+      room.hostId = newHost.socketId;
+
+      io.to(roomId).emit("room:host-changed", {
+        hostId: room.hostId,
+      });
+    }
 
     io.to(roomId).emit("room:users", room.users);
   });

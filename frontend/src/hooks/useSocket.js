@@ -25,6 +25,10 @@ export default function useSocket({
 
     socket.on("room:users", setUsers);
 
+    socket.on("room:host-changed", ({ hostId }) => {
+      setIsHost(socket.id === hostId);
+    });
+
     socket.on("video:state", ({ time, isPlaying, updatedAt }) => {
       if (!videoRef.current) return;
 
