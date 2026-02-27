@@ -205,8 +205,19 @@ io.on("connection", (socket) => {
 
     
     roomVideos[roomId] = meta;
+
+    room.video = {
+      time: 0,
+      isPlaying: false,
+      updatedAt: Date.now(),
+    };
+    
+    io.to(roomId).emit("video:block", {
+      name: meta.name,
+      hostId: room.hostId,
+    });
     socket.emit("video:accepted");
-  });
+  }); 
 
 
   // ---------------- VIDEO EVENTS ----------------

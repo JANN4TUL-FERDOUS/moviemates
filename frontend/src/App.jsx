@@ -29,7 +29,21 @@ export default function App() {
   const [showUsers, setShowUsers] = useState(false);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
+  const [isVideoBlocked, setIsVideoBlocked] = useState(false);
+  const [toast, setToast] = useState("");
 
+  
+  const toastTimer = useRef(null);
+
+  const showToast = (message) => {
+    setToast(message);
+
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+
+    toastTimer.current = setTimeout(() => {
+      setToast("");
+    }, 3000); 
+  };
   useSocket({
     setCurrentRoom,
     setIsHost,
@@ -37,24 +51,10 @@ export default function App() {
     setIsPlaying,
     setMessages,
     videoRef,
+    setVideoSrc,
+    setIsVideoBlocked,
+    showToast,
   });
-  useEffect(() => {
-    socket.on("video:error", (msg) => {
-      alert(msg);
-      setVideoSrc(null);
-    });
-
-    socket.on("video:mismatch", () => {
-      alert("❌ Wrong movie! Upload the same file as host.");
-      setVideoSrc(null);
-      videoRef.current?.pause();
-    });
-
-    return () => {
-      socket.off("video:error");
-      socket.off("video:mismatch");
-    };
-  }, []);
 
   useEffect(() => {
     if (!currentRoom || isHost) return;
@@ -88,9 +88,9 @@ export default function App() {
 
     const interval = setInterval(() => {
       socket.emit("video:sync", {
+        roomId: currentRoom,
         time: videoRef.current.currentTime,
         isPlaying: !videoRef.current.paused,
-        updatedAt: Date.now(),
       });
     }, 10000); 
 
@@ -127,6 +127,8 @@ export default function App() {
   const login = (res) => {
     const u = handleLogin(res);
     setUser(u);
+
+    socket.connect();
     socket.emit("user:login", u);
   };
   const handleLogout = () => {
@@ -161,6 +163,17 @@ export default function App() {
       socket.emit("video:meta", meta);
       socket.once("video:accepted", () => {
         setVideoSrc(URL.createObjectURL(file));
+        setIsVideoBlocked(false);
+
+        if (videoRef.current) {
+          videoRef.current.pause();
+          videoRef.current.currentTime = 0;
+          videoRef.current.load();
+        }
+        setCurrentTime(0);
+        setDuration(0);
+        setIsPlaying(false);
+        socket.emit("video:request-state", currentRoom);
       });
     };
 
@@ -239,6 +252,8 @@ export default function App() {
         onLogout={handleLogout}
       />
 
+      {toast && <div className="toast">{toast}</div>}
+        
       {!user && <Landing />}
 
       {user && !currentRoom && (

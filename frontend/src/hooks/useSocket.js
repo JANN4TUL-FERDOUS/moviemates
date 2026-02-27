@@ -8,10 +8,26 @@ export default function useSocket({
   setIsPlaying,
   setMessages,
   videoRef,
+  setVideoSrc,
+  setIsVideoBlocked,
+  showToast,
 }) {
   useEffect(() => {
-    socket.connect();
 
+    const events = [
+      "room:created",
+      "room:joined",
+      "room:users",
+      "room:host-changed",
+      "video:mismatch",
+      "video:state",
+      "video:block",
+      "video:error",
+      "chat:message"
+    ];
+
+    events.forEach(event => socket.off(event));
+    
     socket.on("room:created", ({ roomId, isHost }) => {
       setCurrentRoom(roomId);
       setIsHost(isHost);
@@ -27,6 +43,32 @@ export default function useSocket({
 
     socket.on("room:host-changed", ({ hostId }) => {
       setIsHost(socket.id === hostId);
+    });
+    
+    socket.on("video:error", (msg) => {
+      if (videoRef.current) {
+        videoRef.current.pause();
+        videoRef.current.removeAttribute("src");
+        videoRef.current.load();
+      }
+
+      setVideoSrc(null);
+      setIsVideoBlocked(true);
+
+      showToast(`⚠️ ${msg}`);
+    });
+
+    socket.on("video:mismatch", () => {
+      if (videoRef.current) {
+        videoRef.current.pause();
+        videoRef.current.removeAttribute("src");
+        videoRef.current.load();
+      }
+
+      setVideoSrc(null);
+      setIsVideoBlocked(true);
+
+      showToast("❌ Wrong file. Please upload the same file as the host.");
     });
 
     socket.on("video:state", ({ time, isPlaying, updatedAt }) => {
@@ -57,7 +99,22 @@ export default function useSocket({
       setIsPlaying(isPlaying);
     });
 
+    socket.on("video:block", ({ name, hostId }) => {
+      if (socket.id === hostId) return;
+      
+      if (videoRef.current) {
+        videoRef.current.pause();
+        videoRef.current.removeAttribute("src");
+        videoRef.current.load();
+      }
 
+      setVideoSrc(null);
+      setIsVideoBlocked(true);
+
+      showToast(
+        `🎬 The host has selected "${name}". Upload the same file to continue watching together.`
+      );
+    });
 
     const handleChat = (msg) => {
       setMessages((m) => [...m, msg]);
@@ -67,11 +124,14 @@ export default function useSocket({
 
     return () => {
       socket.off("room:created");
-        socket.off("room:joined");
-        socket.off("room:users");
-        socket.off("video:state");
-        socket.off("chat:message");
-        socket.disconnect();
+      socket.off("room:joined");
+      socket.off("room:users");
+      socket.off("video:state");
+      socket.off("video:mismatch");
+      socket.off("chat:message");
+      socket.off("video:block");
+      socket.off("room:host-changed");
+      socket.off("video:error");
     };
   }, []);
 }
