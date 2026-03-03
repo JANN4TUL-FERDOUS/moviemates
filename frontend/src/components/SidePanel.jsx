@@ -18,6 +18,7 @@ export default function SidePanel({
       {showUsers && ( 
         <UserList 
           users={users} 
+          currentUser={currentUser}
           onClose={() => setShowUsers(false)}
         />
       )}
