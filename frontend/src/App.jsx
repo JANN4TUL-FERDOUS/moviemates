@@ -267,7 +267,30 @@ export default function App() {
 
       {user && currentRoom && (
         <>
-          <RoomInfo roomId={currentRoom} />
+          <RoomInfo 
+            roomId={currentRoom} 
+            onLeave={() => {
+              socket.emit("room:leave", currentRoom);
+
+              const video = videoRef.current;
+
+              if (video) {
+                video.pause();
+                video.currentTime = 0;
+                video.removeAttribute("src"); 
+                video.load();                
+              }
+
+              setVideoSrc(null);
+              setIsPlaying(false);
+              setCurrentTime(0);
+              setDuration(0);
+              setMessages([]);
+              setShowChat(false);
+              setShowUsers(false);
+              setCurrentRoom(null);
+            }}
+          />
 
           <div className="room-layout">
           <VideoPlayer
@@ -289,28 +312,6 @@ export default function App() {
             requestFull={() =>
               videoRef.current.requestFullscreen()
             }
-            leaveRoom={() => {
-              socket.emit("room:leave", currentRoom);
-
-              const video = videoRef.current;
-
-              if (video) {
-                video.pause();
-                video.currentTime = 0;
-                video.removeAttribute("src"); 
-                video.load();                
-              }
-
-              setVideoSrc(null);
-              setIsPlaying(false);
-              setCurrentTime(0);
-              setDuration(0);
-              setMessages([]);
-              setShowChat(false);
-              setShowUsers(false);
-              setCurrentRoom(null);
-            }}
-
           />
 
           {(showChat || showUsers) && (
@@ -325,11 +326,9 @@ export default function App() {
               currentUser={user}
               setShowChat={setShowChat}
               setShowUsers={setShowUsers}
-
             />
           )}
-        </div>
-        
+        </div>       
         </>
       )}
     </div>

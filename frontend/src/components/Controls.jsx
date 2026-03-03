@@ -39,10 +39,6 @@ export default function Controls({
       </button>
 
       <button onClick={requestFull}>⛶</button>
-
-      <button className="leave" onClick={leaveRoom}>
-        Leave
-      </button>
     </div>
   );
 }

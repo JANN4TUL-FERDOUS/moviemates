@@ -1,4 +1,9 @@
 export default function UserList({ users, onClose }) {
+  
+  const sortedUsers = [...users].sort(
+    (a, b) => (b.isHost === true) - (a.isHost === true)
+  );
+  
   return (
     <div className="users-panel">
       <div className="users-header">
@@ -9,10 +14,13 @@ export default function UserList({ users, onClose }) {
       </div>
 
       <ul className="user-list">
-        {users.map((u) => (
+        {sortedUsers.map((u) => (
           <li key={u.id} className="user-item">
             <img src={u.avatar} alt={u.name} />
-            <span>{u.name}</span>
+            <span>
+              {u.name}
+              {u.isHost && " (Host)"}
+            </span>
           </li>
         ))}
       </ul>

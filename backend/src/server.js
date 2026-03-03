@@ -61,7 +61,13 @@ io.on("connection", (socket) => {
         if(wasHost){
           assignNewHost(room, io, roomId);
         }
-        io.to(roomId).emit("room:users", room.users);
+
+        const usersWithHost = rooms[roomId].users.map(u => ({
+          ...u,
+          isHost: u.socketId === rooms[roomId].hostId
+        }));
+
+        io.to(roomId).emit("room:users", usersWithHost);
       }
     }
   });
@@ -94,7 +100,12 @@ io.on("connection", (socket) => {
       isHost: true,
     });
 
-    io.to(roomId).emit("room:users", rooms[roomId].users);
+    const usersWithHost = rooms[roomId].users.map(u => ({
+      ...u,
+      isHost: u.socketId === rooms[roomId].hostId
+    }));
+
+    io.to(roomId).emit("room:users", usersWithHost);
 
     console.log(`Room created: ${roomId}`);
 
@@ -126,10 +137,16 @@ io.on("connection", (socket) => {
       isHost: false,
     });
 
-    io.to(roomId).emit("room:users", room.users);
+    const usersWithHost = rooms[roomId].users.map(u => ({
+      ...u,
+      isHost: u.socketId === rooms[roomId].hostId
+    }));
+
+    io.to(roomId).emit("room:users", usersWithHost);
 
     console.log(`User joined room: ${roomId}`);
   });
+
   socket.on("room:leave", (roomId) => {
     const room = rooms[roomId];
     if (!room) return;
@@ -157,7 +174,12 @@ io.on("connection", (socket) => {
       });
     }
 
-    io.to(roomId).emit("room:users", room.users);
+    const usersWithHost = rooms[roomId].users.map(u => ({
+      ...u,
+      isHost: u.socketId === rooms[roomId].hostId
+    }));
+
+    io.to(roomId).emit("room:users", usersWithHost);
   });
 
   socket.on("chat:send", ({ roomId, text }) => {
@@ -175,6 +197,7 @@ io.on("connection", (socket) => {
 
     io.to(roomId).emit("chat:message", message);
   });
+
   socket.on("video:meta", (meta) => {
     const { roomId } = meta;
     const room = rooms[roomId];

@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 
-export default function RoomInfo({ roomId }) {
+export default function RoomInfo({ roomId, onLeave }) {
   const [toast, setToast] = useState("");
   const timer = useRef(null);
 
@@ -13,14 +13,18 @@ export default function RoomInfo({ roomId }) {
 
     timer.current = setTimeout(() => {
       setToast("");
-    }, 2500); // 2.5 seconds
+    }, 2500); 
   };
 
   return (
     <>
       <div className="room-info-bar">
-        🎬 Room ID: <b>{roomId}</b>
-        <button onClick={copyRoomId}>Copy</button>
+        <div>
+          🎬 Room ID: <b>{roomId}</b>
+          <button onClick={copyRoomId}>Copy</button>
+        </div>
+        <button onClick={onLeave} className="btn-leave-room"> Leave</button>
+        
       </div>
 
       {toast && <div className="toast">{toast}</div>}
