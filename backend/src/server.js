@@ -1,7 +1,17 @@
+import dotenv from "dotenv";
+import connectDB from "./config/db.js";
+
+dotenv.config();
+connectDB();
+
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 import cors from "cors";
+
+import User from "./models/User.js";
+import Room from "./models/Room.js";
+
 
 const app = express();
 app.use(cors());
@@ -72,12 +82,26 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("user:login", (user) => {
+  socket.on("user:login", async (user) => {
     console.log("User logged in:", user.name);
-    socket.user = user;
+
+    let dbUser = await User.findOne({ googleId: user.id });
+
+    if (!dbUser) {
+      dbUser = await User.create({
+        googleId: user.id,
+        name: user.name,
+        avatar: user.avatar,
+      });
+    }
+
+    socket.user = {
+      ...user,
+      dbId: dbUser._id
+    };
   });
 
-  socket.on("room:create", () => {
+  socket.on("room:create", async() => {
     if (!requireLogin(socket)) return;
 
     const roomId = Math.random().toString(36).substring(2, 8);
@@ -100,6 +124,12 @@ io.on("connection", (socket) => {
       isHost: true,
     });
 
+    await Room.create({
+      roomId,
+      hostId: socket.user.dbId,
+      users: [socket.user.dbId],
+    });
+
     const usersWithHost = rooms[roomId].users.map(u => ({
       ...u,
       isHost: u.socketId === rooms[roomId].hostId
@@ -111,7 +141,7 @@ io.on("connection", (socket) => {
 
   });
 
-  socket.on("room:join", (roomId) => {
+  socket.on("room:join", async(roomId) => {
     if (!requireLogin(socket)) return;
 
     const room = rooms[roomId];
@@ -127,6 +157,15 @@ io.on("connection", (socket) => {
 
     if (!userExists) {
       room.users.push({ ...socket.user, socketId: socket.id });
+      
+      try {
+        await Room.updateOne(
+          { roomId },
+          { $addToSet: { users: socket.user.dbId } }
+        );
+      } catch (err) {
+        console.error("DB update error:", err);
+      }
     }
 
     socket.join(roomId);
@@ -147,7 +186,7 @@ io.on("connection", (socket) => {
     console.log(`User joined room: ${roomId}`);
   });
 
-  socket.on("room:leave", (roomId) => {
+  socket.on("room:leave", async(roomId) => {
     const room = rooms[roomId];
     if (!room) return;
 
@@ -162,6 +201,8 @@ io.on("connection", (socket) => {
     if(room.users.length === 0){
       delete rooms[roomId];
       delete roomVideos[roomId];
+
+      await Room.deleteOne({ roomId });
       return;
     }
 
