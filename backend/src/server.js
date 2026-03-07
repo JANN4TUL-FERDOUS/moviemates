@@ -14,14 +14,25 @@ import Room from "./models/Room.js";
 
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://m0viemates.netlify.app"
+  ],
+  credentials: true
+}));
+
 app.use(express.json());
 
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "*",
-  },
+    origin: [
+      "http://localhost:5173",
+      "https://m0viemates.netlify.app"
+    ],
+    methods: ["GET", "POST"]
+  }
 });
 const requireLogin = (socket) => {
   if (!socket.user) {
@@ -352,7 +363,7 @@ io.on("connection", (socket) => {
 app.get("/", (req, res) => {
   res.send("Backend is running 🚀");
 });
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
