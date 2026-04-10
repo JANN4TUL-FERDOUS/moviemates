@@ -11,7 +11,7 @@ import cors from "cors";
 
 import User from "./models/User.js";
 import Room from "./models/Room.js";
-
+import Message from "./models/Message.js";
 
 const app = express();
 app.use(cors({
@@ -182,6 +182,16 @@ io.on("connection", (socket) => {
     socket.join(roomId);
     socket.roomId = roomId;
 
+    const messages = await Message.find({ roomId })
+      .populate({
+        path: "replyTo",
+        select: "text user",
+      })
+      .sort({ timestamp: 1 })
+      .limit(500);
+
+    socket.emit("chat:history", messages);
+
     socket.emit("room:joined", {
       roomId,
       isHost: false,
@@ -234,20 +244,53 @@ io.on("connection", (socket) => {
     io.to(roomId).emit("room:users", usersWithHost);
   });
 
-  socket.on("chat:send", ({ roomId, text }) => {
-    if (!socket.user || !roomId) return;
+  socket.on("chat:send", async ({ roomId, text, replyTo}) => {
 
-    const message = {
+    if (!socket.user || !roomId)  return;
+
+    
+    const message = await Message.create({
+      roomId,
+      replyTo: replyTo || null,
       user: {
         id: socket.user.id,
         name: socket.user.name,
         avatar: socket.user.avatar,
       },
       text,
-      timestamp: new Date().toISOString(),
-    };
+      timestamp: new Date(),
+    });
+
+    const populated = await message.populate({
+      path: "replyTo",
+      select: "text user",
+    });
 
     io.to(roomId).emit("chat:message", message);
+    
+  });
+
+  socket.on("chat:react", async ({ messageId, emoji, userId }) => {
+    try {
+      const message = await Message.findById(messageId);
+
+      if (!message) return;
+
+      message.reactions = message.reactions.filter(
+        (r) => r.userId !== userId
+      );
+
+      message.reactions.push({ emoji, userId });
+
+      await message.save();
+
+      io.to(message.roomId).emit("chat:reaction-update", {
+        messageId,
+        reactions: message.reactions,
+      });
+    } catch (err) {
+      console.error("Reaction error:", err);
+    }
   });
 
   socket.on("video:meta", (meta) => {

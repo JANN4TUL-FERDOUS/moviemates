@@ -577,6 +577,145 @@ video {
   text-align: right;
 }
 
+.wa-reply-preview {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #202c33;
+  padding: 6px 10px;
+  border-left: 4px solid #00a884;
+}
+
+.wa-reply-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.wa-reply-text strong {
+  color: #00a884;
+  font-size: 13px;
+}
+
+.wa-reply-text span {
+  font-size: 12px;
+  color: #d1d5db;
+}
+
+.wa-reply-box {
+  border-left: 3px solid #00a884;
+  padding-left: 6px;
+  margin-bottom: 4px;
+  font-size: 12px;
+}
+
+.wa-reply-box strong {
+  display: block;
+  color: #00a884;
+}
+
+.wa-reply-box span {
+  color: #cbd5f5;
+}
+
+.msg-options {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  opacity: 0;             
+  transition: 0.2s;
+}
+
+.msg-options button {
+  background: transparent;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+}
+
+.msg-menu {
+  position: absolute;
+  top: 20px;
+  right: 0;
+  background: #202c33;
+  border-radius: 6px;
+  overflow: hidden;
+  z-index: 999;
+  min-width: 90px;
+}
+
+.msg-menu div {
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.msg-menu div:hover {
+  background: #2a3942;
+}
+.chat-bubble {
+  position: relative;
+  padding: 8px 28px 8px 10px;
+}
+
+
+.chat-message:hover .msg-options {
+  opacity: 1;
+}
+.chat-message.other .chat-bubble {
+  position: relative;
+  margin-left: 4px; 
+}
+
+.emoji-picker {
+  position: absolute;
+  bottom: 45px;
+  right: 0;
+  z-index: 9999;
+}
+
+.chat-message:first-child .emoji-picker {
+  top: 45px;
+  bottom: auto;
+}
+
+.emoji-picker span {
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.chat-message {
+  position: relative; /* 👈 required */
+  margin-bottom: 18px;
+}
+
+/* message bubble */
+.chat-bubble {
+  position: relative;
+  display: inline-block;
+}
+
+
+.reactions {
+  position: absolute;
+  bottom: -12px;   /* pushes outside */
+  left: 50px;      /* adjust for avatar space */
+
+  display: flex;
+  gap: 6px;
+
+  background: #1f2c34;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+/* own message (right side) */
+.chat-message.own .reactions {
+  left: auto;
+  right: 10px;
+}
+
 
 /*progress bar*/
 

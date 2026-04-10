@@ -12,6 +12,8 @@ export default function SidePanel({
   currentUser,
   setShowChat,
   setShowUsers,
+  replyMessage,
+  setReplyMessage,
 }) {
   return (
     <div className="side-panel">
@@ -31,6 +33,8 @@ export default function SidePanel({
           sendMessage={sendMessage}
           currentUser={currentUser}
           onClose={()=> setShowChat(false)}
+          replyMessage={replyMessage}
+          setReplyMessage={setReplyMessage}
         />
       )}
     </div>

@@ -122,6 +122,18 @@ export default function useSocket({
 
     socket.on("chat:message", handleChat);
 
+    socket.on("chat:history", (msgs) => {
+      setMessages(msgs);
+    });
+
+    socket.on("chat:reaction-update", ({ messageId, reactions }) => {
+      setMessages((msgs) =>
+        msgs.map((m) =>
+          m._id === messageId ? { ...m, reactions } : m
+        )
+      );
+    });
+
     return () => {
       socket.off("room:created");
       socket.off("room:joined");

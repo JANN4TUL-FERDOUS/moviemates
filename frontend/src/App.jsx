@@ -31,7 +31,7 @@ export default function App() {
   const [currentTime, setCurrentTime] = useState(0);
   const [isVideoBlocked, setIsVideoBlocked] = useState(false);
   const [toast, setToast] = useState("");
-
+  const [replyMessage, setReplyMessage] = useState(null);
   
   const toastTimer = useRef(null);
 
@@ -234,14 +234,16 @@ export default function App() {
 
 
   const sendMessage = () => {
-    if (!chatInput.trim()) return;
+    if (!chatInput.trim() || !currentRoom) return;
 
     socket.emit("chat:send", {
       roomId: currentRoom,
       text: chatInput,
+      replyTo: replyMessage?._id || null,
     });
 
     setChatInput("");
+    setReplyMessage(null);
   };
 
   return (
@@ -326,6 +328,8 @@ export default function App() {
               currentUser={user}
               setShowChat={setShowChat}
               setShowUsers={setShowUsers}
+              replyMessage={replyMessage}
+              setReplyMessage={setReplyMessage}
             />
           )}
         </div>       
