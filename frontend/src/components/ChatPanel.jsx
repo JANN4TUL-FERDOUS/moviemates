@@ -15,6 +15,7 @@ export default function ChatPanel({
   const messagesEndRef = useRef(null);
   const [activeMsg, setActiveMsg] = useState(null);
   const [showEmojiFor, setShowEmojiFor] = useState(null);
+  const [showInputEmoji, setShowInputEmoji] = useState(false);
 
   // Auto-scroll to latest message
   useEffect(() => {
@@ -169,13 +170,42 @@ export default function ChatPanel({
           </div>
         )}
 
-        <input
-          value={chatInput}
-          onChange={(e) => setChatInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-          placeholder="Type a message"
-        />
-        <button onClick={sendMessage}>Send</button>
+        <div className="input-wrapper">
+          <input
+            value={chatInput}
+            onChange={(e) => setChatInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+            placeholder="Type a message"
+          />
+          
+          <button
+            className="emoji-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowInputEmoji((prev) => !prev);
+            }}
+          >
+            
+            😊
+          </button>
+
+          
+        
+          <button onClick={sendMessage}>Send</button>
+        </div>
+
+        {showInputEmoji && (
+          <div
+            className="input-emoji-picker"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <EmojiPicker
+              onEmojiClick={(emojiData) => {
+                setChatInput((prev) => prev + emojiData.emoji);
+              }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
