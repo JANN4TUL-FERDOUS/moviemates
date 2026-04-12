@@ -657,7 +657,8 @@ video {
 }
 
 
-.chat-message:hover .msg-options {
+.chat-message:hover .msg-options,
+.chat-message.active .msg-options {
   opacity: 1;
 }
 .chat-message.other .chat-bubble {
@@ -683,11 +684,11 @@ video {
 }
 
 .chat-message {
-  position: relative; /* 👈 required */
+  position: relative; 
   margin-bottom: 18px;
 }
 
-/* message bubble */
+
 .chat-bubble {
   position: relative;
   display: inline-block;
@@ -741,6 +742,29 @@ video {
   position: relative;  
   overflow: hidden;     
 }
+
+
+/* Remove emoji background */
+.EmojiPickerReact .epr-emoji {
+  background: transparent !important;
+}
+
+.EmojiPickerReact .epr-emoji:hover {
+  background: transparent !important;
+}
+
+.EmojiPickerReact .epr-emoji:focus,
+.EmojiPickerReact .epr-emoji:active {
+  background: transparent !important;
+}
+
+
+.EmojiPickerReact .epr-category-nav button {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+
 /*progress bar*/
 
 .seek-bar {

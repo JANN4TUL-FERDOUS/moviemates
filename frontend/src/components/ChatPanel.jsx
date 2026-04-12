@@ -22,6 +22,29 @@ export default function ChatPanel({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        e.target.closest(".msg-menu") ||
+        e.target.closest(".emoji-picker") ||
+        e.target.closest(".input-emoji-picker") ||
+        e.target.closest(".msg-options button")
+      ) {
+        return;
+      }
+
+      setActiveMsg(null);
+      setShowEmojiFor(null);
+      setShowInputEmoji(false);
+    };
+
+    document.addEventListener("click", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, []);
+
   return (
     <div className="chat-panel">
       <div className="chat-header">
@@ -37,8 +60,10 @@ export default function ChatPanel({
 
           return (
             <div
-              key={i}
-              className={`chat-message ${isOwnMessage ? "own" : "other"}`}
+              key={m._id}
+              className={`chat-message ${isOwnMessage ? "own" : "other"} ${
+                activeMsg === i || showEmojiFor === i ? "active" : ""
+              }`}
             >
               {!isOwnMessage && (
                 <img
@@ -83,6 +108,8 @@ export default function ChatPanel({
                     >
 
                       <EmojiPicker
+                        theme="dark"
+                        previewConfig={{ showPreview: false }}
                         onEmojiClick={(emojiData, event) => {
                           event.stopPropagation(); 
                           
@@ -173,25 +200,48 @@ export default function ChatPanel({
         <div className="input-wrapper">
           <input
             value={chatInput}
-            onChange={(e) => setChatInput(e.target.value)}
+            onChange={(e) =>{
+              setChatInput(e.target.value);
+              
+              setActiveMsg(null);
+              setShowEmojiFor(null);}
+            }
+
+            onClick={() => {
+              setActiveMsg(null);
+              setShowEmojiFor(null);
+              setShowInputEmoji(false);
+            }}
             onKeyDown={(e) => e.key === "Enter" && sendMessage()}
             placeholder="Type a message"
           />
           
-          <button
+          <span
             className="emoji-btn"
             onClick={(e) => {
               e.stopPropagation();
+
+              setActiveMsg(null);
+              setShowEmojiFor(null);
               setShowInputEmoji((prev) => !prev);
             }}
           >
-            
             😊
-          </button>
+          </span>
 
           
         
-          <button onClick={sendMessage}>Send</button>
+          <button onClick={()=>{
+            sendMessage();
+
+            setActiveMsg(null);
+            setShowEmojiFor(null);
+            setShowInputEmoji(false);
+          
+          }}
+        >
+          Send
+        </button>
         </div>
 
         {showInputEmoji && (
@@ -200,6 +250,8 @@ export default function ChatPanel({
             onClick={(e) => e.stopPropagation()}
           >
             <EmojiPicker
+              theme="dark"
+              previewConfig={{ showPreview: false }}
               onEmojiClick={(emojiData) => {
                 setChatInput((prev) => prev + emojiData.emoji);
               }}

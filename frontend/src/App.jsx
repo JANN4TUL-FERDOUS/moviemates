@@ -122,17 +122,6 @@ export default function App() {
     return () => clearInterval(interval);
   }, [videoSrc]);
 
-  useEffect(() => {
-    const handleClickOutside = () => {
-      setShowInputEmoji(false);
-    };
-
-    window.addEventListener("click", handleClickOutside);
-
-    return () => {
-      window.removeEventListener("click", handleClickOutside);
-    };
-  }, []);
   
 
 
